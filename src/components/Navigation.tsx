@@ -1,11 +1,18 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PawPrint, Calendar, User, MessageSquare } from "lucide-react";
+import { PawPrint, Calendar, User, MessageSquare, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
   const location = useLocation();
+  const { isAuthenticated, user, logout } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = "/";
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -52,12 +59,27 @@ const Navigation = () => {
                 Contato
               </Link>
             </Button>
-            <Button asChild size="sm">
-              <Link to="/register">
-                <User className="w-4 h-4" />
-                Entrar
-              </Link>
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/pet-register">
+                    <PawPrint className="w-4 h-4" />
+                    Meus Pets
+                  </Link>
+                </Button>
+                <Button onClick={handleLogout} variant="ghost" size="sm">
+                  <LogOut className="w-4 h-4" />
+                  Sair
+                </Button>
+              </>
+            ) : (
+              <Button asChild size="sm">
+                <Link to="/login">
+                  <User className="w-4 h-4" />
+                  Entrar
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>

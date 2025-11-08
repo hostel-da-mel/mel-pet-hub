@@ -1,35 +1,67 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { User, PawPrint, ArrowLeft } from "lucide-react";
+import { api } from "@/services/api";
+import { ArrowLeft } from "lucide-react";
 
 const Register = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("cliente");
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    nome: "",
+    telefone: "",
+    email: "",
+    endereco: "",
+    aniversario: "",
+    senha: "",
+    confirmarSenha: "",
+  });
 
-  const handleClientSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Cadastro realizado!",
-      description: "Seu cadastro foi criado com sucesso. Agora você pode cadastrar seus pets.",
-    });
-    setActiveTab("pet");
-  };
+    
+    if (formData.senha !== formData.confirmarSenha) {
+      toast({
+        title: "Erro",
+        description: "As senhas não coincidem.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const handlePetSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Pet cadastrado!",
-      description: "Os dados do seu pet foram salvos com sucesso.",
-    });
+    setLoading(true);
+
+    try {
+      await api.register({
+        nome: formData.nome,
+        telefone: formData.telefone,
+        email: formData.email,
+        endereco: formData.endereco,
+        aniversario: formData.aniversario || undefined,
+        senha: formData.senha,
+      });
+
+      toast({
+        title: "Cadastro realizado!",
+        description: "Sua conta foi criada com sucesso. Faça login para continuar.",
+      });
+      
+      navigate("/login");
+    } catch (error: any) {
+      toast({
+        title: "Erro ao cadastrar",
+        description: error.message || "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,179 +76,122 @@ const Register = () => {
           </Link>
         </Button>
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">Faça seu Cadastro</h1>
+            <h1 className="text-4xl font-bold mb-4">Criar Conta</h1>
             <p className="text-muted-foreground">
-              Cadastre-se e seus pets para começar a fazer reservas
+              Cadastre-se para começar a fazer reservas no Hostel da Mel
             </p>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="cliente" className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Dados do Cliente
-              </TabsTrigger>
-              <TabsTrigger value="pet" className="flex items-center gap-2">
-                <PawPrint className="w-4 h-4" />
-                Dados do Pet
-              </TabsTrigger>
-            </TabsList>
+          <Card>
+            <CardHeader>
+              <CardTitle>Dados Pessoais</CardTitle>
+              <CardDescription>
+                Preencha seus dados para criar sua conta
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="nome">Nome Completo *</Label>
+                    <Input
+                      id="nome"
+                      placeholder="Seu nome"
+                      value={formData.nome}
+                      onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="telefone">Telefone *</Label>
+                    <Input
+                      id="telefone"
+                      type="tel"
+                      placeholder="(00) 00000-0000"
+                      value={formData.telefone}
+                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
 
-            <TabsContent value="cliente">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Cadastro de Cliente</CardTitle>
-                  <CardDescription>
-                    Preencha seus dados pessoais para criar sua conta
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleClientSubmit} className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="nome">Nome Completo *</Label>
-                        <Input id="nome" placeholder="Seu nome" required />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="telefone">Telefone *</Label>
-                        <Input id="telefone" type="tel" placeholder="(00) 00000-0000" required />
-                      </div>
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-mail *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="email">E-mail *</Label>
-                      <Input id="email" type="email" placeholder="seu@email.com" required />
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endereco">Endereço Completo *</Label>
+                  <Input
+                    id="endereco"
+                    placeholder="Rua, número, bairro, cidade"
+                    value={formData.endereco}
+                    onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                    required
+                  />
+                </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="endereco">Endereço Completo *</Label>
-                      <Input id="endereco" placeholder="Rua, número, bairro, cidade" required />
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="aniversario">Data de Aniversário</Label>
+                  <Input
+                    id="aniversario"
+                    type="date"
+                    value={formData.aniversario}
+                    onChange={(e) => setFormData({ ...formData, aniversario: e.target.value })}
+                  />
+                </div>
 
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="aniversario">Data de Aniversário</Label>
-                        <Input id="aniversario" type="date" />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="qtd-pets">Quantidade de Pets</Label>
-                        <Select defaultValue="1">
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="1">1 pet</SelectItem>
-                            <SelectItem value="2">2 pets</SelectItem>
-                            <SelectItem value="3">3 pets</SelectItem>
-                            <SelectItem value="4">4 ou mais pets</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="senha">Senha *</Label>
+                    <Input
+                      id="senha"
+                      type="password"
+                      placeholder="••••••••"
+                      value={formData.senha}
+                      onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmarSenha">Confirmar Senha *</Label>
+                    <Input
+                      id="confirmarSenha"
+                      type="password"
+                      placeholder="••••••••"
+                      value={formData.confirmarSenha}
+                      onChange={(e) => setFormData({ ...formData, confirmarSenha: e.target.value })}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                </div>
 
-                    <Button type="submit" size="lg" className="w-full">
-                      Continuar para Cadastro do Pet
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                <Button type="submit" size="lg" className="w-full" disabled={loading}>
+                  {loading ? "Criando conta..." : "Criar Conta"}
+                </Button>
 
-            <TabsContent value="pet">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Cadastro de Pet</CardTitle>
-                  <CardDescription>
-                    Cadastre as informações do seu pet
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handlePetSubmit} className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="pet-nome">Nome do Pet *</Label>
-                        <Input id="pet-nome" placeholder="Nome" required />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="raca">Raça *</Label>
-                        <Input id="raca" placeholder="Ex: Yorkshire, Bulldog" required />
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="peso">Peso (kg) *</Label>
-                        <Input id="peso" type="number" step="0.1" placeholder="0.0" required />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="pet-aniversario">Data de Nascimento</Label>
-                        <Input id="pet-aniversario" type="date" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <Label>Informações Adicionais</Label>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="creche" />
-                        <label htmlFor="creche" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Frequenta creche
-                        </label>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="adestrado" />
-                        <label htmlFor="adestrado" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Adestrado
-                        </label>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="castrado" />
-                        <label htmlFor="castrado" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Castrado
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="alimentacao">Tipo de Alimentação</Label>
-                      <Input id="alimentacao" placeholder="Ex: Ração premium, alimentação natural" />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Documentos (Opcional)</Label>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="carteira-vacina" className="text-sm">Carteira de Vacinação</Label>
-                          <Input id="carteira-vacina" type="file" accept="image/*" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="carteira-convenio" className="text-sm">Carteira do Convênio</Label>
-                          <Input id="carteira-convenio" type="file" accept="image/*" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-4">
-                      <Button type="submit" size="lg" className="flex-1">
-                        Salvar Pet
-                      </Button>
-                      <Button type="button" variant="outline" size="lg">
-                        Adicionar Outro Pet
-                      </Button>
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                <div className="text-center text-sm text-muted-foreground">
+                  Já tem uma conta?{" "}
+                  <Link to="/login" className="text-primary hover:underline">
+                    Faça login aqui
+                  </Link>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
