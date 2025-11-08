@@ -93,6 +93,27 @@ class ApiService {
     this.clearToken();
   }
 
+  async loginWithGoogle() {
+    // Redirect to Google OAuth endpoint
+    window.location.href = `${this.baseUrl}/auth/google`;
+  }
+
+  async handleGoogleCallback(code: string) {
+    const response = await this.request<{ token: string; user: any }>(
+      '/auth/google/callback',
+      {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+      }
+    );
+    
+    if (response.token) {
+      this.setToken(response.token);
+    }
+    
+    return response;
+  }
+
   async getCurrentUser() {
     return this.request('/auth/me', {
       method: 'GET',

@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft } from "lucide-react";
+import googleLogo from "@/assets/google-logo.png";
 
 const Login = () => {
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -41,6 +43,18 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer login com Google",
+        description: error.message || "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-cream">
       <Navigation />
@@ -62,6 +76,24 @@ const Login = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full mb-6"
+                onClick={handleGoogleLogin}
+              >
+                <img src={googleLogo} alt="Google" className="w-5 h-5 mr-2" />
+                Continuar com Google
+              </Button>
+
+              <div className="relative mb-6">
+                <Separator />
+                <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+                  ou
+                </span>
+              </div>
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail</Label>

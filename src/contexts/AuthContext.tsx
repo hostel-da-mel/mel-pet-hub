@@ -12,6 +12,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, senha: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -44,6 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(response.user);
   };
 
+  const loginWithGoogle = async () => {
+    await api.loginWithGoogle();
+  };
+
   const logout = async () => {
     await api.logout();
     setUser(null);
@@ -55,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         loading,
         login,
+        loginWithGoogle,
         logout,
         isAuthenticated: !!user,
       }}
