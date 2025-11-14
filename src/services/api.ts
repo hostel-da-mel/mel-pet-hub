@@ -5,6 +5,10 @@ interface ApiError {
   status: number;
 }
 
+interface RequestConfig<TResponse> {
+  fallbackValue?: TResponse;
+}
+
 class ApiService {
   private baseUrl: string;
   private token: string | null = null;
@@ -24,10 +28,11 @@ class ApiService {
     localStorage.removeItem('auth_token');
   }
 
-  private async request<T>(
+  private async request<TResponse>(
     endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+    options: RequestInit = {},
+    config: RequestConfig<TResponse> = {}
+  ): Promise<TResponse> {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -43,15 +48,50 @@ class ApiService {
         headers,
       });
 
+      const contentType = response.headers.get('Content-Type') ?? '';
+      const isJsonResponse = contentType.includes('application/json');
+
       if (!response.ok) {
+        let errorMessage = `Erro na requisição: ${response.statusText}`;
+
+        if (isJsonResponse) {
+          try {
+            const errorBody = await response.json();
+            if (errorBody?.message) {
+              errorMessage = errorBody.message;
+            }
+          } catch (parseError) {
+            console.warn('Erro ao ler resposta JSON de erro:', parseError);
+          }
+        }
+
         const error: ApiError = {
-          message: `Erro na requisição: ${response.statusText}`,
+          message: errorMessage,
           status: response.status,
         };
         throw error;
       }
 
-      return await response.json();
+      const hasBody =
+        response.status !== 204 &&
+        response.status !== 205 &&
+        response.status !== 304 &&
+        options.method?.toUpperCase() !== 'HEAD';
+
+      const hasCustomFallback = Object.prototype.hasOwnProperty.call(
+        config,
+        'fallbackValue'
+      );
+
+      if (!hasBody || !isJsonResponse) {
+        if (hasCustomFallback) {
+          return config.fallbackValue as TResponse;
+        }
+
+        return undefined as TResponse;
+      }
+
+      return (await response.json()) as TResponse;
     } catch (error) {
       console.error('API Error:', error);
       throw error;
@@ -73,19 +113,22 @@ class ApiService {
     });
   }
 
-  async login(email: string, senha: string) {
-    const response = await this.request<{ token: string; user: any }>(
+  async login(
+    email: string,
+    senha: string
+  ): Promise<{ token: string; user: any } | undefined> {
+    const response = await this.request<{ token: string; user: any } | undefined>(
       '/auth/login',
       {
         method: 'POST',
         body: JSON.stringify({ email, senha }),
       }
     );
-    
-    if (response.token) {
+
+    if (response?.token) {
       this.setToken(response.token);
     }
-    
+
     return response;
   }
 
@@ -98,24 +141,26 @@ class ApiService {
     window.location.href = `${this.baseUrl}/auth/google`;
   }
 
-  async handleGoogleCallback(code: string) {
-    const response = await this.request<{ token: string; user: any }>(
+  async handleGoogleCallback(
+    code: string
+  ): Promise<{ token: string; user: any } | undefined> {
+    const response = await this.request<{ token: string; user: any } | undefined>(
       '/auth/google/callback',
       {
         method: 'POST',
         body: JSON.stringify({ code }),
       }
     );
-    
-    if (response.token) {
+
+    if (response?.token) {
       this.setToken(response.token);
     }
-    
+
     return response;
   }
 
-  async getCurrentUser() {
-    return this.request('/auth/me', {
+  async getCurrentUser<T = any>(): Promise<T | undefined> {
+    return this.request<T | undefined>('/auth/me', {
       method: 'GET',
     });
   }
