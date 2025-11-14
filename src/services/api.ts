@@ -1,8 +1,13 @@
 import { config } from '@/config/environment';
 
-interface ApiError {
-  message: string;
+export class ApiRequestError extends Error {
   status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiRequestError';
+    this.status = status;
+  }
 }
 
 class ApiService {
@@ -66,25 +71,36 @@ class ApiService {
           }
         }
 
-        const error: ApiError = {
-          message,
-          status: response.status,
-        };
-        throw error;
+        throw new ApiRequestError(message, response.status);
       }
 
-      if (response.status === 204 || response.status === 205) {
+      const hasEmptyBody =
+        response.status === 204 ||
+        response.status === 205 ||
+        response.headers.get('content-length') === '0';
+
+      if (hasEmptyBody) {
         return undefined as T;
       }
 
-      const contentType = response.headers.get('content-type');
+      const contentType = response.headers.get('content-type') ?? '';
+      const rawBody = await response.text();
 
-      if (contentType?.includes('application/json')) {
-        return (await response.json()) as T;
+      if (!rawBody) {
+        return undefined as T;
       }
 
-      if (contentType?.includes('text/')) {
-        return (await response.text()) as unknown as T;
+      if (contentType.includes('application/json')) {
+        try {
+          return JSON.parse(rawBody) as T;
+        } catch (error) {
+          console.warn('Não foi possível parsear a resposta JSON.', error);
+          return undefined as T;
+        }
+      }
+
+      if (contentType.includes('text/')) {
+        return rawBody as unknown as T;
       }
 
       return undefined as T;

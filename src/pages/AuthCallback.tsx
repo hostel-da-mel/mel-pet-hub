@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { api } from "@/services/api";
+import { api, ApiRequestError } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
@@ -24,7 +24,7 @@ const AuthCallback = () => {
           description: "A autenticação com Google foi cancelada ou falhou.",
           variant: "destructive",
         });
-        setTimeout(() => navigate("/login"), 2000);
+        setTimeout(() => navigate("/login", { replace: true }), 2000);
         return;
       }
 
@@ -35,7 +35,7 @@ const AuthCallback = () => {
           description: "Código de autenticação não encontrado.",
           variant: "destructive",
         });
-        setTimeout(() => navigate("/login"), 2000);
+        setTimeout(() => navigate("/login", { replace: true }), 2000);
         return;
       }
 
@@ -49,15 +49,23 @@ const AuthCallback = () => {
 
         setAuthenticatedUser(response.user ?? null);
         navigate("/pet-register", { replace: true });
-      } catch (error: any) {
+      } catch (error) {
         console.error("Erro no callback:", error);
-        setError(error.message || "Erro ao processar autenticação.");
+        let message = "Erro ao processar autenticação.";
+
+        if (error instanceof ApiRequestError) {
+          message = error.message;
+        } else if (error instanceof Error && error.message) {
+          message = error.message;
+        }
+
+        setError(message);
         toast({
           title: "Erro ao fazer login",
-          description: error.message || "Não foi possível completar a autenticação.",
+          description: message,
           variant: "destructive",
         });
-        setTimeout(() => navigate("/login"), 2000);
+        setTimeout(() => navigate("/login", { replace: true }), 2000);
       }
     };
 
