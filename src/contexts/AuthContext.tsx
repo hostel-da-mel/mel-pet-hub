@@ -42,8 +42,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const token = window.localStorage.getItem('auth_token');
       if (token) {
         try {
-          const userData = await api.getCurrentUser() as User;
-          setUser(userData);
+          const userData = await api.getCurrentUser<User>();
+          if (userData) {
+            setUser(userData);
+          } else {
+            setUser(null);
+          }
         } catch (error) {
           window.localStorage.removeItem('auth_token');
           api.clearToken();

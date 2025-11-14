@@ -72,7 +72,59 @@ This project is built with:
 
 ## How can I deploy this project?
 
+### Option 1: Lovable Deploy
+
 Simply open [Lovable](https://lovable.dev/projects/4279b2a9-8d08-4cf8-937c-ced705e58783) and click on Share -> Publish.
+
+### Option 2: AWS S3 Automatic Deployment
+
+This project includes a GitHub Actions workflow that automatically deploys to AWS S3 when you push to the `main` branch.
+
+#### Setup Instructions:
+
+1. **Create an S3 bucket** in your AWS account for hosting the static website
+2. **Configure the S3 bucket** for static website hosting
+3. **Create an IAM user** with programmatic access and attach a policy with S3 permissions
+4. **Add the following secrets** to your GitHub repository (Settings > Secrets and variables > Actions):
+   - `AWS_ACCESS_KEY_ID`: Your AWS access key ID
+   - `AWS_SECRET_ACCESS_KEY`: Your AWS secret access key
+   - `AWS_REGION`: Your AWS region (e.g., `us-east-1`)
+   - `AWS_S3_BUCKET`: Your S3 bucket name (e.g., `my-app-bucket`)
+   - `AWS_CLOUDFRONT_DISTRIBUTION_ID` (optional): CloudFront distribution ID for cache invalidation
+
+#### Required IAM Permissions:
+
+Your IAM user needs the following permissions:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::your-bucket-name/*",
+        "arn:aws:s3:::your-bucket-name"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:CreateInvalidation"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+Once configured, every push to the `main` branch will automatically build and deploy your application to S3.
 
 ## Can I connect a custom domain to my Lovable project?
 
