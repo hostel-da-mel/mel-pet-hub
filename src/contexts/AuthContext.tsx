@@ -15,6 +15,7 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
+  setAuthenticatedUser: (user: User | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,13 +26,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const loadUser = async () => {
-      const token = localStorage.getItem('auth_token');
+      if (typeof window === 'undefined') {
+        setLoading(false);
+        return;
+      }
+
+      api.hydrateFromStorage();
+
+      const token = window.localStorage.getItem('auth_token');
       if (token) {
         try {
           const userData = await api.getCurrentUser() as User;
           setUser(userData);
         } catch (error) {
-          localStorage.removeItem('auth_token');
+          window.localStorage.removeItem('auth_token');
+          api.clearToken();
         }
       }
       setLoading(false);
@@ -42,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, senha: string) => {
     const response = await api.login(email, senha);
-    setUser(response.user);
+    setUser(response.user ?? null);
   };
 
   const loginWithGoogle = async () => {
@@ -54,6 +63,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const setAuthenticatedUser = (authenticatedUser: User | null) => {
+    setUser(authenticatedUser);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -63,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginWithGoogle,
         logout,
         isAuthenticated: !!user,
+        setAuthenticatedUser,
       }}
     >
       {children}

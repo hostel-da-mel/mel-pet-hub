@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
 const AuthCallback = () => {
@@ -9,6 +10,7 @@ const AuthCallback = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
+  const { setAuthenticatedUser } = useAuth();
 
   useEffect(() => {
     const processCallback = async () => {
@@ -39,14 +41,14 @@ const AuthCallback = () => {
 
       try {
         const response = await api.handleGoogleCallback(code);
-        
+
         toast({
           title: "Login realizado!",
           description: `Bem-vindo${response.user?.nome ? `, ${response.user.nome}` : ""}!`,
         });
 
-        // Reload auth context
-        window.location.href = "/pet-register";
+        setAuthenticatedUser(response.user ?? null);
+        navigate("/pet-register", { replace: true });
       } catch (error: any) {
         console.error("Erro no callback:", error);
         setError(error.message || "Erro ao processar autenticação.");
@@ -60,7 +62,7 @@ const AuthCallback = () => {
     };
 
     processCallback();
-  }, [searchParams, navigate, toast]);
+  }, [searchParams, navigate, toast, setAuthenticatedUser]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-cream">
