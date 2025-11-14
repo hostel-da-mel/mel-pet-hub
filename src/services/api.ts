@@ -13,19 +13,58 @@ class ApiService {
   private baseUrl: string;
   private token: string | null = null;
 
-  constructor() {
-    this.baseUrl = config.apiUrl;
-    this.token = localStorage.getItem('auth_token');
+  constructor(baseUrl: string = config.apiUrl, initialToken?: string | null) {
+    this.baseUrl = baseUrl;
+    this.token = initialToken ?? null;
   }
 
-  setToken(token: string) {
+  private getStorage(): Storage | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    try {
+      return window.localStorage;
+    } catch (error) {
+      console.warn('Unable to access localStorage:', error);
+      return null;
+    }
+  }
+
+  private getStoredToken(): string | null {
+    const storage = this.getStorage();
+    return storage?.getItem('auth_token') ?? null;
+  }
+
+  private resolveToken(): string | null {
+    if (this.token) {
+      return this.token;
+    }
+
+    const storedToken = this.getStoredToken();
+
+    if (storedToken) {
+      this.token = storedToken;
+    }
+
+    return this.token;
+  }
+
+  setToken(token: string, persist = true) {
     this.token = token;
-    localStorage.setItem('auth_token', token);
+
+    if (!persist) {
+      return;
+    }
+
+    const storage = this.getStorage();
+    storage?.setItem('auth_token', token);
   }
 
   clearToken() {
     this.token = null;
-    localStorage.removeItem('auth_token');
+    const storage = this.getStorage();
+    storage?.removeItem('auth_token');
   }
 
   private async request<TResponse>(
@@ -38,8 +77,10 @@ class ApiService {
       ...options.headers,
     };
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const token = this.resolveToken();
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     try {
@@ -138,6 +179,10 @@ class ApiService {
 
   async loginWithGoogle() {
     // Redirect to Google OAuth endpoint
+    if (typeof window === 'undefined') {
+      throw new Error('Google login is only available in the browser.');
+    }
+
     window.location.href = `${this.baseUrl}/auth/google`;
   }
 
@@ -193,11 +238,16 @@ class ApiService {
     formData.append('file', file);
     formData.append('type', type);
 
+    const token = this.resolveToken();
+    const headers: HeadersInit = {};
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     return fetch(`${this.baseUrl}/pets/${petId}/documents`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-      },
+      headers,
       body: formData,
     });
   }
