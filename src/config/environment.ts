@@ -5,23 +5,33 @@ interface EnvironmentConfig {
   environment: Environment;
 }
 
-const FALLBACK_API_URLS: Record<Environment, string> = {
+const ENVIRONMENT_VALUES: Environment[] = [
+  'development',
+  'homologation',
+  'production',
+];
+
+const API_URL_FALLBACKS: Record<Environment, string> = {
   development: 'https://dev-api.hosteldamel.com',
   homologation: 'https://hom-api.hosteldamel.com',
   production: 'https://api.hosteldamel.com',
 };
 
-const isBrowser = typeof window !== 'undefined';
+const getEnvironmentFromMeta = (): Environment | undefined => {
+  const value = import.meta.env?.VITE_APP_ENVIRONMENT as
+    | Environment
+    | undefined;
 
-const detectEnvironment = (): Environment => {
-  const mode = import.meta.env.MODE;
-
-  if (mode === 'development' || mode === 'homologation' || mode === 'production') {
-    return mode;
+  if (value && ENVIRONMENT_VALUES.includes(value)) {
+    return value;
   }
 
-  if (!isBrowser) {
-    return 'development';
+  return undefined;
+};
+
+const getEnvironmentFromWindow = (): Environment | undefined => {
+  if (typeof window === 'undefined') {
+    return undefined;
   }
 
   const hostname = window.location.hostname;
@@ -37,21 +47,27 @@ const detectEnvironment = (): Environment => {
   return 'production';
 };
 
-const resolveApiUrl = (environment: Environment): string => {
-  const envApiUrl = import.meta.env.VITE_API_URL as string | undefined;
+const getEnvironment = (): Environment => {
+  return (
+    getEnvironmentFromMeta() ?? getEnvironmentFromWindow() ?? 'production'
+  );
+};
 
-  if (envApiUrl && envApiUrl.trim().length > 0) {
-    return envApiUrl;
+const getApiUrl = (environment: Environment): string => {
+  const metaBaseUrl = import.meta.env?.VITE_API_BASE_URL as string | undefined;
+
+  if (metaBaseUrl) {
+    return metaBaseUrl;
   }
 
-  return FALLBACK_API_URLS[environment];
+  return API_URL_FALLBACKS[environment];
 };
 
 const getConfig = (): EnvironmentConfig => {
-  const environment = detectEnvironment();
+  const environment = getEnvironment();
 
   return {
-    apiUrl: resolveApiUrl(environment),
+    apiUrl: getApiUrl(environment),
     environment,
   };
 };

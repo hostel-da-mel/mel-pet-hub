@@ -5,57 +5,82 @@ interface ApiError {
   status: number;
 }
 
+interface RequestConfig<TResponse> {
+  fallbackValue?: TResponse;
+}
+
 class ApiService {
   private baseUrl: string;
   private token: string | null = null;
 
-  constructor() {
-    this.baseUrl = config.apiUrl;
-    this.token = this.storage?.getItem('auth_token') ?? null;
+  constructor(baseUrl: string = config.apiUrl, initialToken?: string | null) {
+    this.baseUrl = baseUrl;
+    this.token = initialToken ?? null;
   }
 
-  hydrateFromStorage() {
-    const storedToken = this.storage?.getItem('auth_token') ?? null;
-
-    if (storedToken) {
-      this.token = storedToken;
-      return;
-    }
-
-    if (!storedToken) {
-      this.token = null;
-    }
-  }
-
-  private get storage(): Storage | null {
-    if (typeof window === 'undefined' || !window.localStorage) {
+  private getStorage(): Storage | null {
+    if (typeof window === 'undefined') {
       return null;
     }
 
-    return window.localStorage;
+    try {
+      return window.localStorage;
+    } catch (error) {
+      console.warn('Unable to access localStorage:', error);
+      return null;
+    }
   }
 
-  setToken(token: string) {
+  private getStoredToken(): string | null {
+    const storage = this.getStorage();
+    return storage?.getItem('auth_token') ?? null;
+  }
+
+  private resolveToken(): string | null {
+    if (this.token) {
+      return this.token;
+    }
+
+    const storedToken = this.getStoredToken();
+
+    if (storedToken) {
+      this.token = storedToken;
+    }
+
+    return this.token;
+  }
+
+  setToken(token: string, persist = true) {
     this.token = token;
-    this.storage?.setItem('auth_token', token);
+
+    if (!persist) {
+      return;
+    }
+
+    const storage = this.getStorage();
+    storage?.setItem('auth_token', token);
   }
 
   clearToken() {
     this.token = null;
-    this.storage?.removeItem('auth_token');
+    const storage = this.getStorage();
+    storage?.removeItem('auth_token');
   }
 
-  private async request<T>(
+  private async request<TResponse>(
     endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+    options: RequestInit = {},
+    config: RequestConfig<TResponse> = {}
+  ): Promise<TResponse> {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...options.headers,
     };
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const token = this.resolveToken();
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     try {
@@ -64,43 +89,50 @@ class ApiService {
         headers,
       });
 
-      if (!response.ok) {
-        let message = `Erro na requisição: ${response.statusText}`;
-        const contentType = response.headers.get('content-type');
+      const contentType = response.headers.get('Content-Type') ?? '';
+      const isJsonResponse = contentType.includes('application/json');
 
-        if (contentType?.includes('application/json')) {
+      if (!response.ok) {
+        let errorMessage = `Erro na requisição: ${response.statusText}`;
+
+        if (isJsonResponse) {
           try {
-            const body = await response.json();
-            if (body?.message) {
-              message = body.message;
+            const errorBody = await response.json();
+            if (errorBody?.message) {
+              errorMessage = errorBody.message;
             }
-          } catch (error) {
-            console.warn('Não foi possível ler o corpo de erro da resposta.', error);
+          } catch (parseError) {
+            console.warn('Erro ao ler resposta JSON de erro:', parseError);
           }
         }
 
         const error: ApiError = {
-          message,
+          message: errorMessage,
           status: response.status,
         };
         throw error;
       }
 
-      if (response.status === 204 || response.status === 205) {
-        return undefined as T;
+      const hasBody =
+        response.status !== 204 &&
+        response.status !== 205 &&
+        response.status !== 304 &&
+        options.method?.toUpperCase() !== 'HEAD';
+
+      const hasCustomFallback = Object.prototype.hasOwnProperty.call(
+        config,
+        'fallbackValue'
+      );
+
+      if (!hasBody || !isJsonResponse) {
+        if (hasCustomFallback) {
+          return config.fallbackValue as TResponse;
+        }
+
+        return undefined as TResponse;
       }
 
-      const contentType = response.headers.get('content-type');
-
-      if (contentType?.includes('application/json')) {
-        return (await response.json()) as T;
-      }
-
-      if (contentType?.includes('text/')) {
-        return (await response.text()) as unknown as T;
-      }
-
-      return undefined as T;
+      return (await response.json()) as TResponse;
     } catch (error) {
       console.error('API Error:', error);
       throw error;
@@ -122,19 +154,22 @@ class ApiService {
     });
   }
 
-  async login(email: string, senha: string) {
-    const response = await this.request<{ token: string; user: any }>(
+  async login(
+    email: string,
+    senha: string
+  ): Promise<{ token: string; user: any } | undefined> {
+    const response = await this.request<{ token: string; user: any } | undefined>(
       '/auth/login',
       {
         method: 'POST',
         body: JSON.stringify({ email, senha }),
       }
     );
-    
-    if (response.token) {
+
+    if (response?.token) {
       this.setToken(response.token);
     }
-    
+
     return response;
   }
 
@@ -145,30 +180,32 @@ class ApiService {
   async loginWithGoogle() {
     // Redirect to Google OAuth endpoint
     if (typeof window === 'undefined') {
-      throw new Error('Login com Google está disponível apenas no navegador.');
+      throw new Error('Google login is only available in the browser.');
     }
 
     window.location.href = `${this.baseUrl}/auth/google`;
   }
 
-  async handleGoogleCallback(code: string) {
-    const response = await this.request<{ token: string; user: any }>(
+  async handleGoogleCallback(
+    code: string
+  ): Promise<{ token: string; user: any } | undefined> {
+    const response = await this.request<{ token: string; user: any } | undefined>(
       '/auth/google/callback',
       {
         method: 'POST',
         body: JSON.stringify({ code }),
       }
     );
-    
-    if (response.token) {
+
+    if (response?.token) {
       this.setToken(response.token);
     }
-    
+
     return response;
   }
 
-  async getCurrentUser() {
-    return this.request('/auth/me', {
+  async getCurrentUser<T = any>(): Promise<T | undefined> {
+    return this.request<T | undefined>('/auth/me', {
       method: 'GET',
     });
   }
@@ -201,11 +238,16 @@ class ApiService {
     formData.append('file', file);
     formData.append('type', type);
 
+    const token = this.resolveToken();
+    const headers: HeadersInit = {};
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     return fetch(`${this.baseUrl}/pets/${petId}/documents`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-      },
+      headers,
       body: formData,
     });
   }

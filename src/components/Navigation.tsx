@@ -12,7 +12,7 @@ const Navigation = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/", { replace: true });
+    navigate("/");
   };
 
   return (

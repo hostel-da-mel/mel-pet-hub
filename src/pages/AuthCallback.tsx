@@ -9,6 +9,7 @@ const AuthCallback = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { setAuthenticatedUser } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const { setAuthenticatedUser } = useAuth();
 
@@ -44,11 +45,13 @@ const AuthCallback = () => {
 
         toast({
           title: "Login realizado!",
-          description: `Bem-vindo${response.user?.nome ? `, ${response.user.nome}` : ""}!`,
+          description: response?.user?.nome
+            ? `Bem-vindo, ${response.user.nome}!`
+            : "Bem-vindo!",
         });
 
         setAuthenticatedUser(response.user ?? null);
-        navigate("/pet-register", { replace: true });
+        navigate("/pet-register");
       } catch (error: any) {
         console.error("Erro no callback:", error);
         setError(error.message || "Erro ao processar autenticação.");

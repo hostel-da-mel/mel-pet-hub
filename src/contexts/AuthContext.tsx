@@ -36,8 +36,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const token = window.localStorage.getItem('auth_token');
       if (token) {
         try {
-          const userData = await api.getCurrentUser() as User;
-          setUser(userData);
+          const userData = await api.getCurrentUser<User>();
+          if (userData) {
+            setUser(userData);
+          } else {
+            setUser(null);
+          }
         } catch (error) {
           window.localStorage.removeItem('auth_token');
           api.clearToken();
@@ -51,7 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, senha: string) => {
     const response = await api.login(email, senha);
-    setUser(response.user ?? null);
+    if (response?.user) {
+      setUser(response.user);
+    }
   };
 
   const loginWithGoogle = async () => {
@@ -63,8 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
-  const setAuthenticatedUser = (authenticatedUser: User | null) => {
-    setUser(authenticatedUser);
+  const setAuthenticatedUser = (userData: User | null) => {
+    setUser(userData);
   };
 
   return (
