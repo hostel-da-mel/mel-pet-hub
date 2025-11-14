@@ -11,6 +11,7 @@ const AuthCallback = () => {
   const { toast } = useToast();
   const { setAuthenticatedUser } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const { setAuthenticatedUser } = useAuth();
 
   useEffect(() => {
     const processCallback = async () => {

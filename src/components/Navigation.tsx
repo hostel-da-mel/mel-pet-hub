@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PawPrint, Calendar, User, MessageSquare, LogOut } from "lucide-react";
+import { PawPrint, User, MessageSquare, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {

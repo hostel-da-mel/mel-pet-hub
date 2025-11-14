@@ -26,7 +26,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const loadUser = async () => {
-      const token = localStorage.getItem('auth_token');
+      if (typeof window === 'undefined') {
+        setLoading(false);
+        return;
+      }
+
+      api.hydrateFromStorage();
+
+      const token = window.localStorage.getItem('auth_token');
       if (token) {
         try {
           const userData = await api.getCurrentUser<User>();
@@ -36,7 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(null);
           }
         } catch (error) {
-          localStorage.removeItem('auth_token');
+          window.localStorage.removeItem('auth_token');
+          api.clearToken();
         }
       }
       setLoading(false);
