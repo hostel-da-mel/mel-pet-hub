@@ -1,8 +1,13 @@
 import { config } from '@/config/environment';
 
-interface ApiError {
-  message: string;
+export class ApiRequestError extends Error {
   status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiRequestError';
+    this.status = status;
+  }
 }
 
 interface RequestConfig<TResponse> {
@@ -13,27 +18,17 @@ class ApiService {
   private baseUrl: string;
   private token: string | null = null;
 
-  constructor(baseUrl: string = config.apiUrl, initialToken?: string | null) {
-    this.baseUrl = baseUrl;
-    this.token = initialToken ?? null;
+  constructor() {
+    this.baseUrl = config.apiUrl;
+    this.token = this.storage?.getItem('auth_token') ?? null;
   }
 
-  private getStorage(): Storage | null {
-    if (typeof window === 'undefined') {
+  private get storage(): Storage | null {
+    if (typeof window === 'undefined' || !window.localStorage) {
       return null;
     }
 
-    try {
-      return window.localStorage;
-    } catch (error) {
-      console.warn('Unable to access localStorage:', error);
-      return null;
-    }
-  }
-
-  private getStoredToken(): string | null {
-    const storage = this.getStorage();
-    return storage?.getItem('auth_token') ?? null;
+    return window.localStorage;
   }
 
   private resolveToken(): string | null {
@@ -52,19 +47,12 @@ class ApiService {
 
   setToken(token: string, persist = true) {
     this.token = token;
-
-    if (!persist) {
-      return;
-    }
-
-    const storage = this.getStorage();
-    storage?.setItem('auth_token', token);
+    this.storage?.setItem('auth_token', token);
   }
 
   clearToken() {
     this.token = null;
-    const storage = this.getStorage();
-    storage?.removeItem('auth_token');
+    this.storage?.removeItem('auth_token');
   }
 
   private async request<TResponse>(
@@ -93,46 +81,53 @@ class ApiService {
       const isJsonResponse = contentType.includes('application/json');
 
       if (!response.ok) {
-        let errorMessage = `Erro na requisição: ${response.statusText}`;
+        let message = `Erro na requisição: ${response.statusText}`;
+        const contentType = response.headers.get('content-type');
 
-        if (isJsonResponse) {
+        if (contentType?.includes('application/json')) {
           try {
-            const errorBody = await response.json();
-            if (errorBody?.message) {
-              errorMessage = errorBody.message;
+            const body = await response.json();
+            if (body?.message) {
+              message = body.message;
             }
-          } catch (parseError) {
-            console.warn('Erro ao ler resposta JSON de erro:', parseError);
+          } catch (error) {
+            console.warn('Não foi possível ler o corpo de erro da resposta.', error);
           }
         }
 
-        const error: ApiError = {
-          message: errorMessage,
-          status: response.status,
-        };
-        throw error;
+        throw new ApiRequestError(message, response.status);
       }
 
-      const hasBody =
-        response.status !== 204 &&
-        response.status !== 205 &&
-        response.status !== 304 &&
-        options.method?.toUpperCase() !== 'HEAD';
+      const hasEmptyBody =
+        response.status === 204 ||
+        response.status === 205 ||
+        response.headers.get('content-length') === '0';
 
-      const hasCustomFallback = Object.prototype.hasOwnProperty.call(
-        config,
-        'fallbackValue'
-      );
+      if (hasEmptyBody) {
+        return undefined as T;
+      }
 
-      if (!hasBody || !isJsonResponse) {
-        if (hasCustomFallback) {
-          return config.fallbackValue as TResponse;
+      const contentType = response.headers.get('content-type') ?? '';
+      const rawBody = await response.text();
+
+      if (!rawBody) {
+        return undefined as T;
+      }
+
+      if (contentType.includes('application/json')) {
+        try {
+          return JSON.parse(rawBody) as T;
+        } catch (error) {
+          console.warn('Não foi possível parsear a resposta JSON.', error);
+          return undefined as T;
         }
-
-        return undefined as TResponse;
       }
 
-      return (await response.json()) as TResponse;
+      if (contentType.includes('text/')) {
+        return rawBody as unknown as T;
+      }
+
+      return undefined as T;
     } catch (error) {
       console.error('API Error:', error);
       throw error;
@@ -180,7 +175,7 @@ class ApiService {
   async loginWithGoogle() {
     // Redirect to Google OAuth endpoint
     if (typeof window === 'undefined') {
-      throw new Error('Google login is only available in the browser.');
+      throw new Error('Login com Google está disponível apenas no navegador.');
     }
 
     window.location.href = `${this.baseUrl}/auth/google`;

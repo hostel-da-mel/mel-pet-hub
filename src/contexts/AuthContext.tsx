@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useCallback,
+  useMemo,
+} from 'react';
 import { api } from '@/services/api';
 
 interface User {
@@ -31,8 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      api.hydrateFromStorage();
-
       const token = window.localStorage.getItem('auth_token');
       if (token) {
         try {
@@ -53,41 +59,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadUser();
   }, []);
 
-  const login = async (email: string, senha: string) => {
-    const response = await api.login(email, senha);
-    if (response?.user) {
-      setUser(response.user);
-    }
-  };
+  const login = useCallback(
+    async (email: string, senha: string) => {
+      const response = await api.login(email, senha);
+      setUser(response.user ?? null);
+    },
+    [setUser]
+  );
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = useCallback(async () => {
     await api.loginWithGoogle();
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await api.logout();
     setUser(null);
-  };
+  }, [setUser]);
 
-  const setAuthenticatedUser = (userData: User | null) => {
-    setUser(userData);
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        loginWithGoogle,
-        logout,
-        isAuthenticated: !!user,
-        setAuthenticatedUser,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const setAuthenticatedUser = useCallback(
+    (authenticatedUser: User | null) => {
+      setUser(authenticatedUser);
+    },
+    [setUser]
   );
+
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      login,
+      loginWithGoogle,
+      logout,
+      isAuthenticated: !!user,
+      setAuthenticatedUser,
+    }),
+    [user, loading, login, loginWithGoogle, logout, setAuthenticatedUser]
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
