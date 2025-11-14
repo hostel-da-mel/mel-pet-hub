@@ -1,4 +1,11 @@
 import { config } from '@/config/environment';
+import type {
+  User,
+  AuthResponse,
+  RegisterData,
+  RegisterPetData,
+  Pet,
+} from '@/types/api';
 
 export class ApiRequestError extends Error {
   status: number;
@@ -17,18 +24,40 @@ interface RequestConfig<TResponse> {
 class ApiService {
   private baseUrl: string;
   private token: string | null = null;
+  private storageCache: Storage | null | undefined = undefined;
 
   constructor() {
     this.baseUrl = config.apiUrl;
     this.token = this.storage?.getItem('auth_token') ?? null;
   }
 
+  /**
+   * Gets the storage instance (localStorage) with caching.
+   *
+   * SECURITY NOTE: localStorage is vulnerable to XSS attacks.
+   * Consider migrating to httpOnly cookies for production environments.
+   *
+   * For improved security:
+   * - Implement Content Security Policy (CSP)
+   * - Use httpOnly cookies with SameSite attribute
+   * - Implement token rotation and refresh tokens
+   */
   private get storage(): Storage | null {
+    if (this.storageCache !== undefined) {
+      return this.storageCache;
+    }
+
     if (typeof window === 'undefined' || !window.localStorage) {
+      this.storageCache = null;
       return null;
     }
 
-    return window.localStorage;
+    this.storageCache = window.localStorage;
+    return this.storageCache;
+  }
+
+  private getStoredToken(): string | null {
+    return this.storage?.getItem('auth_token') ?? null;
   }
 
   private resolveToken(): string | null {
@@ -47,7 +76,9 @@ class ApiService {
 
   setToken(token: string, persist = true) {
     this.token = token;
-    this.storage?.setItem('auth_token', token);
+    if (persist) {
+      this.storage?.setItem('auth_token', token);
+    }
   }
 
   clearToken() {
@@ -104,30 +135,30 @@ class ApiService {
         response.headers.get('content-length') === '0';
 
       if (hasEmptyBody) {
-        return undefined as T;
+        return config.fallbackValue as TResponse;
       }
 
-      const contentType = response.headers.get('content-type') ?? '';
+      const responseContentType = response.headers.get('content-type') ?? '';
       const rawBody = await response.text();
 
       if (!rawBody) {
-        return undefined as T;
+        return config.fallbackValue as TResponse;
       }
 
-      if (contentType.includes('application/json')) {
+      if (responseContentType.includes('application/json')) {
         try {
-          return JSON.parse(rawBody) as T;
+          return JSON.parse(rawBody) as TResponse;
         } catch (error) {
           console.warn('Não foi possível parsear a resposta JSON.', error);
-          return undefined as T;
+          return config.fallbackValue as TResponse;
         }
       }
 
-      if (contentType.includes('text/')) {
-        return rawBody as unknown as T;
+      if (responseContentType.includes('text/')) {
+        return rawBody as unknown as TResponse;
       }
 
-      return undefined as T;
+      return config.fallbackValue as TResponse;
     } catch (error) {
       console.error('API Error:', error);
       throw error;
@@ -135,33 +166,20 @@ class ApiService {
   }
 
   // Auth
-  async register(data: {
-    nome: string;
-    telefone: string;
-    email: string;
-    endereco: string;
-    aniversario?: string;
-    senha: string;
-  }) {
-    return this.request('/auth/register', {
+  async register(data: RegisterData): Promise<void> {
+    await this.request<void>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async login(
-    email: string,
-    senha: string
-  ): Promise<{ token: string; user: any } | undefined> {
-    const response = await this.request<{ token: string; user: any } | undefined>(
-      '/auth/login',
-      {
-        method: 'POST',
-        body: JSON.stringify({ email, senha }),
-      }
-    );
+  async login(email: string, senha: string): Promise<AuthResponse> {
+    const response = await this.request<AuthResponse>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, senha }),
+    });
 
-    if (response?.token) {
+    if (response.token) {
       this.setToken(response.token);
     }
 
@@ -178,52 +196,42 @@ class ApiService {
       throw new Error('Login com Google está disponível apenas no navegador.');
     }
 
+    if (!this.baseUrl) {
+      throw new Error('URL base da API não está configurada.');
+    }
+
     window.location.href = `${this.baseUrl}/auth/google`;
   }
 
-  async handleGoogleCallback(
-    code: string
-  ): Promise<{ token: string; user: any } | undefined> {
-    const response = await this.request<{ token: string; user: any } | undefined>(
-      '/auth/google/callback',
-      {
-        method: 'POST',
-        body: JSON.stringify({ code }),
-      }
-    );
+  async handleGoogleCallback(code: string): Promise<AuthResponse> {
+    const response = await this.request<AuthResponse>('/auth/google/callback', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
 
-    if (response?.token) {
+    if (response.token) {
       this.setToken(response.token);
     }
 
     return response;
   }
 
-  async getCurrentUser<T = any>(): Promise<T | undefined> {
-    return this.request<T | undefined>('/auth/me', {
+  async getCurrentUser(): Promise<User> {
+    return this.request<User>('/auth/me', {
       method: 'GET',
     });
   }
 
   // Pets
-  async registerPet(data: {
-    nome: string;
-    raca: string;
-    peso: number;
-    aniversario?: string;
-    frequenta_creche: boolean;
-    adestrado: boolean;
-    castrado: boolean;
-    alimentacao?: string;
-  }) {
-    return this.request('/pets', {
+  async registerPet(data: RegisterPetData): Promise<Pet> {
+    return this.request<Pet>('/pets', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async getPets() {
-    return this.request('/pets', {
+  async getPets(): Promise<Pet[]> {
+    return this.request<Pet[]>('/pets', {
       method: 'GET',
     });
   }

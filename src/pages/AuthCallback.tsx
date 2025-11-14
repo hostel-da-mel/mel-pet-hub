@@ -11,7 +11,6 @@ const AuthCallback = () => {
   const { toast } = useToast();
   const { setAuthenticatedUser } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const { setAuthenticatedUser } = useAuth();
 
   useEffect(() => {
     const processCallback = async () => {
@@ -45,12 +44,12 @@ const AuthCallback = () => {
 
         toast({
           title: "Login realizado!",
-          description: response?.user?.nome
+          description: response.user.nome
             ? `Bem-vindo, ${response.user.nome}!`
             : "Bem-vindo!",
         });
 
-        setAuthenticatedUser(response.user ?? null);
+        setAuthenticatedUser(response.user);
         navigate("/pet-register", { replace: true });
       } catch (error) {
         console.error("Erro no callback:", error);

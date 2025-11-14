@@ -1,84 +1,26 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { api } from "@/services/api";
 import { ArrowLeft } from "lucide-react";
-import googleLogo from "@/assets/google-logo.png";
+import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicator";
+import { useRegisterForm } from "@/hooks/useRegisterForm";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
+import { formatPhoneNumber } from "@/lib/phone-mask";
 
 const Register = () => {
-  const { toast } = useToast();
-  const { loginWithGoogle } = useAuth();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    nome: "",
-    telefone: "",
-    email: "",
-    endereco: "",
-    aniversario: "",
-    senha: "",
-    confirmarSenha: "",
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.senha !== formData.confirmarSenha) {
-      toast({
-        title: "Erro",
-        description: "As senhas não coincidem.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await api.register({
-        nome: formData.nome,
-        telefone: formData.telefone,
-        email: formData.email,
-        endereco: formData.endereco,
-        aniversario: formData.aniversario || undefined,
-        senha: formData.senha,
-      });
-
-      toast({
-        title: "Cadastro realizado!",
-        description: "Sua conta foi criada com sucesso. Faça login para continuar.",
-      });
-      
-      navigate("/login");
-    } catch (error: any) {
-      toast({
-        title: "Erro ao cadastrar",
-        description: error.message || "Tente novamente mais tarde.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignup = async () => {
-    try {
-      await loginWithGoogle();
-    } catch (error: any) {
-      toast({
-        title: "Erro ao cadastrar com Google",
-        description: error.message || "Tente novamente mais tarde.",
-        variant: "destructive",
-      });
-    }
-  };
+  const {
+    formData,
+    setFormData,
+    loading,
+    showPasswordRequirements,
+    setShowPasswordRequirements,
+    passwordValidation,
+    handleSubmit,
+    handleGoogleSignup,
+  } = useRegisterForm();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-cream">
@@ -108,23 +50,7 @@ const Register = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                className="w-full mb-6"
-                onClick={handleGoogleSignup}
-              >
-                <img src={googleLogo} alt="Google" className="w-5 h-5 mr-2" />
-                Continuar com Google
-              </Button>
-
-              <div className="relative mb-6">
-                <Separator />
-                <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
-                  ou
-                </span>
-              </div>
+              <GoogleAuthButton onClick={handleGoogleSignup} />
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
@@ -146,8 +72,9 @@ const Register = () => {
                       type="tel"
                       placeholder="(00) 00000-0000"
                       value={formData.telefone}
-                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, telefone: formatPhoneNumber(e.target.value) })}
                       required
+                      maxLength={15}
                     />
                   </div>
                 </div>
@@ -185,7 +112,7 @@ const Register = () => {
                   />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="senha">Senha *</Label>
                     <Input
@@ -194,11 +121,16 @@ const Register = () => {
                       placeholder="••••••••"
                       value={formData.senha}
                       onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
+                      onFocus={() => setShowPasswordRequirements(true)}
                       required
-                      minLength={6}
+                      minLength={8}
+                    />
+                    <PasswordStrengthIndicator
+                      validation={passwordValidation}
+                      show={showPasswordRequirements && formData.senha.length > 0}
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="confirmarSenha">Confirmar Senha *</Label>
                     <Input
@@ -208,7 +140,7 @@ const Register = () => {
                       value={formData.confirmarSenha}
                       onChange={(e) => setFormData({ ...formData, confirmarSenha: e.target.value })}
                       required
-                      minLength={6}
+                      minLength={8}
                     />
                   </div>
                 </div>

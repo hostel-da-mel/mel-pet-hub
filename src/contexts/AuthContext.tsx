@@ -8,13 +8,7 @@ import {
   useMemo,
 } from 'react';
 import { api } from '@/services/api';
-
-interface User {
-  id: string;
-  nome: string;
-  email: string;
-  telefone: string;
-}
+import type { User } from '@/types/api';
 
 interface AuthContextType {
   user: User | null;
@@ -42,15 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const token = window.localStorage.getItem('auth_token');
       if (token) {
         try {
-          const userData = await api.getCurrentUser<User>();
-          if (userData) {
-            setUser(userData);
-          } else {
-            setUser(null);
-          }
+          const userData = await api.getCurrentUser();
+          setUser(userData);
         } catch (error) {
+          // Token expired or invalid - clear it
+          console.warn('Failed to load user from token, clearing auth:', error);
           window.localStorage.removeItem('auth_token');
           api.clearToken();
+          setUser(null);
         }
       }
       setLoading(false);
@@ -62,9 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (email: string, senha: string) => {
       const response = await api.login(email, senha);
-      setUser(response.user ?? null);
+      setUser(response.user);
     },
-    [setUser]
+    []
   );
 
   const loginWithGoogle = useCallback(async () => {
@@ -74,14 +67,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await api.logout();
     setUser(null);
-  }, [setUser]);
+  }, []);
 
-  const setAuthenticatedUser = useCallback(
-    (authenticatedUser: User | null) => {
-      setUser(authenticatedUser);
-    },
-    [setUser]
-  );
+  const setAuthenticatedUser = useCallback((authenticatedUser: User | null) => {
+    setUser(authenticatedUser);
+  }, []);
 
   const value = useMemo(
     () => ({
