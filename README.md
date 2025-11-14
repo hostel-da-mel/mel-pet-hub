@@ -36,6 +36,16 @@ npm i
 npm run dev
 ```
 
+### Configurando a URL da API
+
+Este projeto utiliza variáveis de ambiente do Vite para definir a URL base das chamadas HTTP. Crie um arquivo `.env` na raiz do repositório (ou use variáveis de ambiente do sistema) e defina a propriedade `VITE_API_URL` apontando para o backend desejado:
+
+```env
+VITE_API_URL=https://dev-api.hosteldamel.com
+```
+
+Caso a variável não seja fornecida, o aplicativo utilizará automaticamente os endpoints padrão para desenvolvimento, homologação e produção com base no `hostname` acessado.
+
 **Edit a file directly in GitHub**
 
 - Navigate to the desired file(s).

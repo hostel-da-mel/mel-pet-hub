@@ -11,17 +11,25 @@ class ApiService {
 
   constructor() {
     this.baseUrl = config.apiUrl;
-    this.token = localStorage.getItem('auth_token');
+    this.token = this.storage?.getItem('auth_token') ?? null;
+  }
+
+  private get storage(): Storage | null {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return null;
+    }
+
+    return window.localStorage;
   }
 
   setToken(token: string) {
     this.token = token;
-    localStorage.setItem('auth_token', token);
+    this.storage?.setItem('auth_token', token);
   }
 
   clearToken() {
     this.token = null;
-    localStorage.removeItem('auth_token');
+    this.storage?.removeItem('auth_token');
   }
 
   private async request<T>(
@@ -44,14 +52,42 @@ class ApiService {
       });
 
       if (!response.ok) {
+        let message = `Erro na requisição: ${response.statusText}`;
+        const contentType = response.headers.get('content-type');
+
+        if (contentType?.includes('application/json')) {
+          try {
+            const body = await response.json();
+            if (body?.message) {
+              message = body.message;
+            }
+          } catch (error) {
+            console.warn('Não foi possível ler o corpo de erro da resposta.', error);
+          }
+        }
+
         const error: ApiError = {
-          message: `Erro na requisição: ${response.statusText}`,
+          message,
           status: response.status,
         };
         throw error;
       }
 
-      return await response.json();
+      if (response.status === 204 || response.status === 205) {
+        return undefined as T;
+      }
+
+      const contentType = response.headers.get('content-type');
+
+      if (contentType?.includes('application/json')) {
+        return (await response.json()) as T;
+      }
+
+      if (contentType?.includes('text/')) {
+        return (await response.text()) as unknown as T;
+      }
+
+      return undefined as T;
     } catch (error) {
       console.error('API Error:', error);
       throw error;
@@ -95,6 +131,10 @@ class ApiService {
 
   async loginWithGoogle() {
     // Redirect to Google OAuth endpoint
+    if (typeof window === 'undefined') {
+      throw new Error('Login com Google está disponível apenas no navegador.');
+    }
+
     window.location.href = `${this.baseUrl}/auth/google`;
   }
 
