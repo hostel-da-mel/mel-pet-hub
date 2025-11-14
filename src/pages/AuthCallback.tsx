@@ -39,10 +39,12 @@ const AuthCallback = () => {
 
       try {
         const response = await api.handleGoogleCallback(code);
-        
+
         toast({
           title: "Login realizado!",
-          description: `Bem-vindo${response.user?.nome ? `, ${response.user.nome}` : ""}!`,
+          description: response?.user?.nome
+            ? `Bem-vindo, ${response.user.nome}!`
+            : "Bem-vindo!",
         });
 
         // Reload auth context
