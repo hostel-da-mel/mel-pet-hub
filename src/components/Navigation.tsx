@@ -43,13 +43,21 @@ const Navigation = () => {
             >
               Cadastro
             </Link>
-            <Link 
-              to="/booking" 
+            <Link
+              to="/booking"
               className={`text-sm font-medium transition-colors hover:text-primary ${
                 isActive("/booking") ? "text-primary" : "text-muted-foreground"
               }`}
             >
               Reservas
+            </Link>
+            <Link
+              to="/sobre-nos"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive("/sobre-nos") ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              Sobre Nós
             </Link>
           </div>
 
