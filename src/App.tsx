@@ -14,6 +14,7 @@ import DashboardPets from "./pages/DashboardPets";
 import DashboardProfile from "./pages/DashboardProfile";
 import AdminUsers from "./pages/AdminUsers";
 import AdminBlockedDates from "./pages/AdminBlockedDates";
+import AdminAvailability from "./pages/AdminAvailability";
 import Booking from "./pages/Booking";
 import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
@@ -103,6 +104,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AdminBlockedDates />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/disponibilidade"
+              element={
+                <ProtectedRoute>
+                  <AdminAvailability />
                 </ProtectedRoute>
               }
             />

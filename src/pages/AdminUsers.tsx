@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
-import type { AdminUser } from "@/types/api";
+import type { AdminUser, Pet } from "@/types/api";
 import {
   Users,
   Loader2,
@@ -17,6 +17,11 @@ import {
   CheckCircle,
   Mail,
   Phone,
+  PawPrint,
+  ChevronDown,
+  ChevronUp,
+  MailCheck,
+  MailX,
 } from "lucide-react";
 
 const AdminUsers = () => {
@@ -25,6 +30,9 @@ const AdminUsers = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [expandedUser, setExpandedUser] = useState<string | null>(null);
+  const [userPets, setUserPets] = useState<Record<string, Pet[]>>({});
+  const [loadingPets, setLoadingPets] = useState<string | null>(null);
 
   const loadUsers = useCallback(async () => {
     try {
@@ -44,6 +52,31 @@ const AdminUsers = () => {
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
+
+  const toggleUserPets = async (sub: string) => {
+    if (expandedUser === sub) {
+      setExpandedUser(null);
+      return;
+    }
+
+    setExpandedUser(sub);
+
+    if (userPets[sub]) return;
+
+    setLoadingPets(sub);
+    try {
+      const pets = await api.adminListUserPets(sub);
+      setUserPets((prev) => ({ ...prev, [sub]: pets }));
+    } catch {
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar pets do usuario.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPets(null);
+    }
+  };
 
   const handleDisable = async (sub: string, nome: string) => {
     if (!confirm(`Tem certeza que deseja bloquear "${nome}"?`)) return;
@@ -143,6 +176,23 @@ const AdminUsers = () => {
     return null;
   };
 
+  const emailVerifiedBadge = (verified: boolean) => {
+    if (verified) {
+      return (
+        <Badge className="bg-accent/10 text-accent border-0 text-xs">
+          <MailCheck className="w-3 h-3 mr-1" />
+          Verificado
+        </Badge>
+      );
+    }
+    return (
+      <Badge className="bg-honey-gold/10 text-honey-dark border-0 text-xs">
+        <MailX className="w-3 h-3 mr-1" />
+        Nao verificado
+      </Badge>
+    );
+  };
+
   return (
     <DashboardLayout>
       <div className="mb-6 sm:mb-8">
@@ -169,6 +219,9 @@ const AdminUsers = () => {
             {users.map((u) => {
               const isCurrentUser = u.sub === currentUser?.sub;
               const isLoading = actionLoading === u.sub;
+              const isExpanded = expandedUser === u.sub;
+              const pets = userPets[u.sub];
+              const isPetsLoading = loadingPets === u.sub;
 
               return (
                 <Card
@@ -191,6 +244,7 @@ const AdminUsers = () => {
                             </p>
                             {roleBadge(u.role)}
                             {statusBadge(u.status)}
+                            {emailVerifiedBadge(u.email_verified)}
                             {isCurrentUser && (
                               <Badge variant="outline" className="text-xs">
                                 Voce
@@ -219,59 +273,150 @@ const AdminUsers = () => {
                       </div>
 
                       {/* Actions */}
-                      {!isCurrentUser && (
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {isLoading ? (
-                            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleUserPets(u.sub)}
+                          className="text-primary border-primary/30 hover:bg-primary/10"
+                        >
+                          <PawPrint className="w-4 h-4" />
+                          <span className="hidden sm:inline">Pets</span>
+                          {isExpanded ? (
+                            <ChevronUp className="w-3 h-3" />
                           ) : (
-                            <>
-                              {u.status === "bloqueado" ? (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() =>
-                                    handleEnable(u.sub, u.nome || u.email)
-                                  }
-                                  className="text-accent border-accent/30 hover:bg-accent/10"
-                                >
-                                  <CheckCircle className="w-4 h-4" />
-                                  <span className="hidden sm:inline">
-                                    Desbloquear
-                                  </span>
-                                </Button>
-                              ) : (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() =>
-                                    handleDisable(u.sub, u.nome || u.email)
-                                  }
-                                  className="text-honey-dark border-honey-gold/30 hover:bg-honey-gold/10"
-                                >
-                                  <Ban className="w-4 h-4" />
-                                  <span className="hidden sm:inline">
-                                    Bloquear
-                                  </span>
-                                </Button>
-                              )}
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() =>
-                                  handleDelete(u.sub, u.nome || u.email)
-                                }
-                                className="text-destructive border-destructive/30 hover:bg-destructive/10"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                <span className="hidden sm:inline">
-                                  Excluir
-                                </span>
-                              </Button>
-                            </>
+                            <ChevronDown className="w-3 h-3" />
                           )}
-                        </div>
-                      )}
+                        </Button>
+
+                        {!isCurrentUser && (
+                          <>
+                            {isLoading ? (
+                              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                            ) : (
+                              <>
+                                {u.status === "bloqueado" ? (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleEnable(u.sub, u.nome || u.email)
+                                    }
+                                    className="text-accent border-accent/30 hover:bg-accent/10"
+                                  >
+                                    <CheckCircle className="w-4 h-4" />
+                                    <span className="hidden sm:inline">
+                                      Desbloquear
+                                    </span>
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleDisable(u.sub, u.nome || u.email)
+                                    }
+                                    className="text-honey-dark border-honey-gold/30 hover:bg-honey-gold/10"
+                                  >
+                                    <Ban className="w-4 h-4" />
+                                    <span className="hidden sm:inline">
+                                      Bloquear
+                                    </span>
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleDelete(u.sub, u.nome || u.email)
+                                  }
+                                  className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  <span className="hidden sm:inline">
+                                    Excluir
+                                  </span>
+                                </Button>
+                              </>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
+
+                    {/* Expanded pets section */}
+                    {isExpanded && (
+                      <div className="mt-4 pt-4 border-t border-border">
+                        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                          <PawPrint className="w-4 h-4 text-primary" />
+                          Pets de {u.nome || u.email}
+                        </h4>
+
+                        {isPetsLoading ? (
+                          <div className="flex items-center gap-2 py-4 justify-center text-muted-foreground">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="text-sm">Carregando pets...</span>
+                          </div>
+                        ) : pets && pets.length > 0 ? (
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            {pets.map((pet) => (
+                              <div
+                                key={pet.id}
+                                className="p-3 rounded-lg border bg-muted/30"
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  <PawPrint className="w-4 h-4 text-primary" />
+                                  <span className="font-semibold text-sm">
+                                    {pet.nome}
+                                  </span>
+                                </div>
+                                <div className="space-y-1 text-xs text-muted-foreground">
+                                  <p>
+                                    Raca: <span className="text-foreground">{pet.raca}</span>
+                                  </p>
+                                  <p>
+                                    Peso: <span className="text-foreground">{pet.peso}kg</span>
+                                  </p>
+                                  {pet.aniversario && (
+                                    <p>
+                                      Aniversario:{" "}
+                                      <span className="text-foreground">{pet.aniversario}</span>
+                                    </p>
+                                  )}
+                                  <div className="flex flex-wrap gap-1 mt-2">
+                                    {pet.castrado && (
+                                      <Badge variant="secondary" className="text-xs py-0">
+                                        Castrado
+                                      </Badge>
+                                    )}
+                                    {pet.adestrado && (
+                                      <Badge variant="secondary" className="text-xs py-0">
+                                        Adestrado
+                                      </Badge>
+                                    )}
+                                    {pet.frequenta_creche && (
+                                      <Badge variant="secondary" className="text-xs py-0">
+                                        Creche
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  {pet.alimentacao && (
+                                    <p className="mt-1">
+                                      Alimentacao:{" "}
+                                      <span className="text-foreground">{pet.alimentacao}</span>
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground py-2">
+                            Nenhum pet cadastrado.
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               );

@@ -20,6 +20,7 @@ export interface AdminUser {
   telefone: string;
   role: string;
   status: string;
+  email_verified: boolean;
   created_at: string;
 }
 

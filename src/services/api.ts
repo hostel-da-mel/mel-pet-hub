@@ -272,6 +272,10 @@ class ApiService {
     await this.request<void>(`/admin/users/${sub}`, { method: 'DELETE' });
   }
 
+  async adminListUserPets(sub: string): Promise<Pet[]> {
+    return this.request<Pet[]>(`/admin/users/${sub}/pets`, { method: 'GET' });
+  }
+
   // Admin - Blocked Dates
   async adminListBlockedDates(): Promise<BlockedDate[]> {
     return this.request<BlockedDate[]>('/admin/blocked-dates', { method: 'GET' });

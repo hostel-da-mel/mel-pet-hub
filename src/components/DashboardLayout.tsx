@@ -11,6 +11,7 @@ import {
   X,
   Users,
   CalendarOff,
+  CalendarCheck,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -33,6 +34,7 @@ const allMenuItems: MenuItem[] = [
   { path: "/booking", label: "Reservas", icon: Calendar },
   { path: "/admin/usuarios", label: "Usuarios", icon: Users, adminOnly: true, separator: true },
   { path: "/admin/datas-bloqueadas", label: "Datas Bloqueadas", icon: CalendarOff, adminOnly: true },
+  { path: "/admin/disponibilidade", label: "Disponibilidade", icon: CalendarCheck, adminOnly: true },
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
