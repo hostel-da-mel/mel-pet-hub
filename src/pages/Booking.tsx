@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/services/api";
 import type { Pet } from "@/types/api";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CreditCard, Loader2, PawPrint, Plus } from "lucide-react";
 
 const DAILY_RATE = 80;
@@ -27,7 +28,7 @@ const Booking = () => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [pets, setPets] = useState<Pet[]>([]);
   const [loadingPets, setLoadingPets] = useState(true);
-  const [selectedPet, setSelectedPet] = useState("");
+  const [selectedPets, setSelectedPets] = useState<string[]>([]);
   const [periodo, setPeriodo] = useState("manha");
   const [duracao, setDuracao] = useState("3");
   const [pagamento, setPagamento] = useState("pix");
@@ -46,16 +47,25 @@ const Booking = () => {
     loadPets();
   }, []);
 
-  const total = DAILY_RATE * parseInt(duracao);
+  const togglePet = (petId: string) => {
+    setSelectedPets((prev) =>
+      prev.includes(petId)
+        ? prev.filter((id) => id !== petId)
+        : [...prev, petId]
+    );
+  };
+
+  const totalPerPet = DAILY_RATE * parseInt(duracao);
+  const total = totalPerPet * Math.max(selectedPets.length, 1);
   const duracaoLabel = durationOptions.find((d) => d.value === duracao)?.label || "";
 
-  const canSubmit = date && selectedPet && duracao;
+  const canSubmit = date && selectedPets.length > 0 && duracao;
 
   const handleBooking = () => {
     if (!canSubmit) {
       toast({
         title: "Preencha todos os campos",
-        description: "Selecione a data, o pet e a duracao.",
+        description: "Selecione a data, pelo menos um pet e a duracao.",
         variant: "destructive",
       });
       return;
@@ -138,7 +148,7 @@ const Booking = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pet">Selecione o Pet</Label>
+                  <Label>Selecione os Pets</Label>
                   {loadingPets ? (
                     <div className="flex items-center gap-2 p-3 bg-muted rounded-lg text-sm text-muted-foreground">
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -158,18 +168,32 @@ const Booking = () => {
                       </Button>
                     </div>
                   ) : (
-                    <Select value={selectedPet} onValueChange={setSelectedPet}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Escolha qual pet" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {pets.map((pet) => (
-                          <SelectItem key={pet.id} value={pet.id}>
+                    <div className="space-y-2">
+                      {pets.map((pet) => (
+                        <label
+                          key={pet.id}
+                          className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                            selectedPets.includes(pet.id)
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:bg-muted"
+                          }`}
+                        >
+                          <Checkbox
+                            checked={selectedPets.includes(pet.id)}
+                            onCheckedChange={() => togglePet(pet.id)}
+                          />
+                          <PawPrint className="w-4 h-4 text-primary flex-shrink-0" />
+                          <span className="text-sm font-medium">
                             {pet.nome} — {pet.raca} ({pet.peso}kg)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                          </span>
+                        </label>
+                      ))}
+                      {selectedPets.length > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          {selectedPets.length} pet(s) selecionado(s)
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -215,7 +239,7 @@ const Booking = () => {
                 <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm text-muted-foreground">
-                      Valor da diaria
+                      Valor da diaria (por pet)
                     </span>
                     <span className="font-medium">
                       R$ {DAILY_RATE.toFixed(2).replace(".", ",")}
@@ -227,11 +251,32 @@ const Booking = () => {
                     </span>
                     <span className="font-medium">{duracaoLabel}</span>
                   </div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-muted-foreground">
+                      Quantidade de pets
+                    </span>
+                    <span className="font-medium">
+                      {selectedPets.length || "—"}
+                    </span>
+                  </div>
+                  {selectedPets.length > 1 && (
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-muted-foreground">
+                        Subtotal por pet
+                      </span>
+                      <span className="font-medium">
+                        R$ {totalPerPet.toFixed(2).replace(".", ",")}
+                      </span>
+                    </div>
+                  )}
                   <div className="border-t border-border pt-2 mt-2">
                     <div className="flex justify-between items-center">
                       <span className="font-bold">Total</span>
                       <span className="text-2xl font-bold text-primary">
-                        R$ {total.toFixed(2).replace(".", ",")}
+                        R${" "}
+                        {selectedPets.length > 0
+                          ? total.toFixed(2).replace(".", ",")
+                          : "—"}
                       </span>
                     </div>
                   </div>
