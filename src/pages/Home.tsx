@@ -17,7 +17,7 @@ const Home = () => {
             <div className="space-y-6">
               <div className="inline-block">
                 <span className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
-                  🐾 Hotel Pet de Confiança
+                  🐾 Hostel Pet de Confiança
                 </span>
               </div>
               
@@ -29,8 +29,8 @@ const Home = () => {
               </h1>
               
               <p className="text-lg text-muted-foreground max-w-xl">
-                Reserve a vaga do seu pet para o fim do ano e garanta o melhor cuidado 
-                enquanto você aproveita suas férias. Hospedagem com todo carinho e atenção 
+                Reserve já a vaga do seu pet e garanta o melhor cuidado
+                enquanto você aproveita suas férias. Hospedagem com todo carinho e atenção
                 que seu melhor amigo merece.
               </p>
               
@@ -157,7 +157,7 @@ const Home = () => {
                   Não deixe para a última hora!
                 </h2>
                 <p className="text-white/90 mb-8 text-lg">
-                  As vagas para o fim de ano são limitadas. Reserve agora e garanta 
+                  As vagas são limitadas. Reserve agora e garanta
                   tranquilidade para você e conforto para seu pet.
                 </p>
                 <Button asChild size="lg" variant="outline" className="bg-white text-primary hover:bg-white/90">

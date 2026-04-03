@@ -6,8 +6,8 @@ interface EnvironmentConfig {
 }
 
 const FALLBACK_API_URLS: Record<Environment, string> = {
-  development: 'https://dev-api.hosteldamel.com',
-  homologation: 'https://hom-api.hosteldamel.com',
+  development: 'https://api.hosteldamel.com',
+  homologation: 'https://api.hosteldamel.com',
   production: 'https://api.hosteldamel.com',
 };
 
