@@ -1,12 +1,36 @@
+import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Mail, Phone, Shield } from "lucide-react";
+import { api } from "@/services/api";
+import { formatPhoneNumber } from "@/lib/phone-mask";
+import {
+  User,
+  Mail,
+  Phone,
+  Shield,
+  Pencil,
+  X,
+  Loader2,
+  Check,
+  Lock,
+} from "lucide-react";
 
 const DashboardProfile = () => {
-  const { user } = useAuth();
+  const { user, setAuthenticatedUser } = useAuth();
+  const { toast } = useToast();
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    nome: user?.nome || "",
+    telefone: user?.telefone || "",
+  });
 
   const initials = user?.nome
     ? user.nome
@@ -17,17 +41,74 @@ const DashboardProfile = () => {
         .toUpperCase()
     : "??";
 
+  const startEditing = () => {
+    setFormData({
+      nome: user?.nome || "",
+      telefone: user?.telefone || "",
+    });
+    setEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setEditing(false);
+  };
+
+  const handleSave = async () => {
+    if (!formData.nome.trim()) {
+      toast({
+        title: "Campo obrigatorio",
+        description: "O nome nao pode ficar vazio.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const updatedUser = await api.updateProfile({
+        nome: formData.nome.trim(),
+        telefone: formData.telefone.trim(),
+      });
+
+      setAuthenticatedUser(updatedUser);
+      setEditing(false);
+      toast({
+        title: "Perfil atualizado",
+        description: "Seus dados foram salvos com sucesso.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao atualizar",
+        description: error.message || "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-          <User className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
-          Meu Perfil
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-          Visualize suas informacoes de cadastro
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+            <User className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
+            Meu Perfil
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+            {editing
+              ? "Edite suas informacoes abaixo"
+              : "Visualize e gerencie suas informacoes"}
+          </p>
+        </div>
+
+        {!editing && (
+          <Button onClick={startEditing} variant="outline" size="sm">
+            <Pencil className="w-4 h-4" />
+            Editar Perfil
+          </Button>
+        )}
       </div>
 
       <div className="max-w-2xl">
@@ -37,7 +118,9 @@ const DashboardProfile = () => {
             {/* Avatar + name row */}
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
               <div className="w-20 h-20 bg-gradient-to-br from-honey-gold to-honey-dark rounded-full flex items-center justify-center shadow-md flex-shrink-0">
-                <span className="text-2xl font-bold text-white">{initials}</span>
+                <span className="text-2xl font-bold text-white">
+                  {initials}
+                </span>
               </div>
               <div className="text-center sm:text-left">
                 <h2 className="text-xl font-bold">{user?.nome}</h2>
@@ -56,46 +139,145 @@ const DashboardProfile = () => {
 
             <Separator className="mb-6" />
 
-            {/* Info fields */}
-            <div className="space-y-5">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <User className="w-4 h-4 text-primary" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">
-                    Nome completo
-                  </p>
-                  <p className="font-medium truncate">{user?.nome || "—"}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Mail className="w-4 h-4 text-primary" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">
+            {editing ? (
+              /* Edit mode */
+              <div className="space-y-5">
+                {/* Email - read only */}
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <Mail className="w-4 h-4" />
                     E-mail
-                  </p>
-                  <p className="font-medium truncate">{user?.email || "—"}</p>
+                    <span className="inline-flex items-center gap-1 text-xs bg-muted px-2 py-0.5 rounded-full ml-1">
+                      <Lock className="w-3 h-3" />
+                      Nao editavel
+                    </span>
+                  </Label>
+                  <Input
+                    value={user?.email || ""}
+                    disabled
+                    className="bg-muted/50"
+                  />
                 </div>
-              </div>
 
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Phone className="w-4 h-4 text-primary" />
+                {/* Name - editable */}
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="edit-nome"
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    <User className="w-4 h-4 text-primary" />
+                    Nome completo *
+                  </Label>
+                  <Input
+                    id="edit-nome"
+                    value={formData.nome}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nome: e.target.value })
+                    }
+                    placeholder="Seu nome completo"
+                    className="border-primary/30 focus-visible:ring-primary"
+                  />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">
+
+                {/* Phone - editable */}
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="edit-telefone"
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    <Phone className="w-4 h-4 text-primary" />
                     Telefone
-                  </p>
-                  <p className="font-medium">
-                    {user?.telefone || "Nao informado"}
-                  </p>
+                  </Label>
+                  <Input
+                    id="edit-telefone"
+                    value={formData.telefone}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        telefone: formatPhoneNumber(e.target.value),
+                      })
+                    }
+                    placeholder="(00) 00000-0000"
+                    maxLength={15}
+                    className="border-primary/30 focus-visible:ring-primary"
+                  />
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="flex-1 sm:flex-none"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4" />
+                        Salvar Alteracoes
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={cancelEditing}
+                    variant="outline"
+                    disabled={saving}
+                  >
+                    <X className="w-4 h-4" />
+                    Cancelar
+                  </Button>
                 </div>
               </div>
-            </div>
+            ) : (
+              /* View mode */
+              <div className="space-y-5">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <User className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">
+                      Nome completo
+                    </p>
+                    <p className="font-medium truncate">
+                      {user?.nome || "\u2014"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Mail className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">
+                      E-mail
+                    </p>
+                    <p className="font-medium truncate">
+                      {user?.email || "\u2014"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Phone className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">
+                      Telefone
+                    </p>
+                    <p className="font-medium">
+                      {user?.telefone || "Nao informado"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -108,12 +290,12 @@ const DashboardProfile = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-sm mb-1">
-                  Seguranca dos seus dados
+                  Sobre a edicao do perfil
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Suas informacoes estao protegidas. Para alterar dados cadastrais
-                  como nome, e-mail ou telefone, entre em contato conosco pelo
-                  canal de atendimento.
+                  Voce pode alterar seu nome e telefone a qualquer momento.
+                  O e-mail nao pode ser alterado pois e utilizado como identificador
+                  da sua conta.
                 </p>
               </div>
             </div>

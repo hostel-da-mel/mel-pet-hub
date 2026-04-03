@@ -232,6 +232,13 @@ class ApiService {
     });
   }
 
+  async updateProfile(data: { nome?: string; telefone?: string }): Promise<User> {
+    return this.request<User>('/auth/me', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
   // Pets
   async registerPet(data: RegisterPetData): Promise<Pet> {
     return this.request<Pet>('/pets', {
