@@ -1,11 +1,11 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PawPrint, User, MessageSquare, LogOut } from "lucide-react";
+import { PawPrint, User, MessageSquare, LogOut, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
   const location = useLocation();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
 
   const isActive = (path: string) => location.pathname === path;
@@ -27,22 +27,24 @@ const Navigation = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className={`text-sm font-medium transition-colors hover:text-primary ${
                 isActive("/") ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              Início
+              Inicio
             </Link>
-            <Link 
-              to="/register" 
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/register") ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              Cadastro
-            </Link>
+            {!isAuthenticated && (
+              <Link
+                to="/register"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive("/register") ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                Cadastro
+              </Link>
+            )}
             <Link
               to="/booking"
               className={`text-sm font-medium transition-colors hover:text-primary ${
@@ -57,7 +59,7 @@ const Navigation = () => {
                 isActive("/sobre-nos") ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              Sobre Nós
+              Sobre Nos
             </Link>
           </div>
 
@@ -70,10 +72,10 @@ const Navigation = () => {
             </Button>
             {isAuthenticated ? (
               <>
-                <Button asChild variant="outline" size="sm">
-                  <Link to="/pet-register">
-                    <PawPrint className="w-4 h-4" />
-                    Meus Pets
+                <Button asChild size="sm">
+                  <Link to="/dashboard">
+                    <LayoutDashboard className="w-4 h-4" />
+                    Minha Area
                   </Link>
                 </Button>
                 <Button onClick={handleLogout} variant="ghost" size="sm">

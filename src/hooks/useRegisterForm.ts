@@ -76,7 +76,7 @@ export function useRegisterForm() {
 
       toast({
         title: 'Cadastro realizado!',
-        description: 'Sua conta foi criada com sucesso. Faça login para continuar.',
+        description: 'Verifique seu e-mail para confirmar a conta e depois faca login.',
       });
 
       navigate('/login');

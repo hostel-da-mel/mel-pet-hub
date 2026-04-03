@@ -29,7 +29,7 @@ export function useLoginForm() {
         title: 'Login realizado!',
         description: 'Bem-vindo de volta ao Hostel da Mel.',
       });
-      navigate('/pet-register');
+      navigate('/dashboard');
     } catch (error) {
       const errorDetails = handleError(error, 'Login', 'Erro ao fazer login');
       toast({

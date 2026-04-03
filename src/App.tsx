@@ -9,7 +9,9 @@ import Home from "./pages/Home";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
-import PetRegister from "./pages/PetRegister";
+import Dashboard from "./pages/Dashboard";
+import DashboardPets from "./pages/DashboardPets";
+import DashboardProfile from "./pages/DashboardProfile";
 import Booking from "./pages/Booking";
 import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
@@ -43,22 +45,52 @@ const App = () => (
           }}
         >
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<Home />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/booking" element={<Booking />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/sobre-nos" element={<AboutUs />} />
+
+            {/* Protected routes - Client area */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/pets"
+              element={
+                <ProtectedRoute>
+                  <DashboardPets />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/perfil"
+              element={
+                <ProtectedRoute>
+                  <DashboardProfile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Legacy redirect */}
             <Route
               path="/pet-register"
               element={
                 <ProtectedRoute>
-                  <PetRegister />
+                  <DashboardPets />
                 </ProtectedRoute>
               }
             />
-            <Route path="/booking" element={<Booking />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/sobre-nos" element={<AboutUs />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+            {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

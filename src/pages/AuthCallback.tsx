@@ -50,7 +50,7 @@ const AuthCallback = () => {
         });
 
         setAuthenticatedUser(response.user);
-        navigate("/pet-register", { replace: true });
+        navigate("/dashboard", { replace: true });
       } catch (error) {
         console.error("Erro no callback:", error);
         let message = "Erro ao processar autenticação.";

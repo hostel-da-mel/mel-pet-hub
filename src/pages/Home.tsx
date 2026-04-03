@@ -2,14 +2,18 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
+import { useAuth } from "@/contexts/AuthContext";
 import { Heart, Shield, Calendar, Camera, Star } from "lucide-react";
 import heroImage from "@/assets/hero-pets.jpg";
 
 const Home = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-cream">
       <Navigation />
-      
+
       {/* Hero Section */}
       <section className="relative pt-24 pb-16 overflow-hidden">
         <div className="container mx-auto px-4">
@@ -17,53 +21,61 @@ const Home = () => {
             <div className="space-y-6">
               <div className="inline-block">
                 <span className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
-                  🐾 Hostel Pet de Confiança
+                  Hostel Pet de Confianca
                 </span>
               </div>
-              
+
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Aqui o amor e o cuidado{" "}
                 <span className="bg-gradient-to-r from-honey-gold to-honey-dark bg-clip-text text-transparent">
-                  estão sempre presentes
+                  estao sempre presentes
                 </span>
               </h1>
-              
+
               <p className="text-lg text-muted-foreground max-w-xl">
-                Reserve já a vaga do seu pet e garanta o melhor cuidado
-                sempre que precisar. Hospedagem com todo carinho e atenção
+                Reserve ja a vaga do seu pet e garanta o melhor cuidado
+                sempre que precisar. Hospedagem com todo carinho e atencao
                 que seu melhor amigo merece.
               </p>
-              
+
               <div className="flex flex-wrap gap-4">
                 <Button asChild variant="hero" size="lg">
                   <Link to="/booking">
                     <Calendar className="w-5 h-5" />
-                    Reserve Já 💜
+                    Reserve Ja
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
-                  <Link to="/register">
-                    Fazer Cadastro
-                  </Link>
-                </Button>
+                {isAuthenticated ? (
+                  <Button asChild variant="outline" size="lg">
+                    <Link to="/dashboard">
+                      Minha Area
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button asChild variant="outline" size="lg">
+                    <Link to="/register">
+                      Fazer Cadastro
+                    </Link>
+                  </Button>
+                )}
               </div>
-              
+
               <div className="flex items-center gap-6 pt-4">
                 <div className="flex items-center gap-2">
                   <Star className="w-5 h-5 text-primary fill-primary" />
-                  <span className="text-sm font-medium">5.0 avaliação</span>
+                  <span className="text-sm font-medium">5.0 avaliacao</span>
                 </div>
                 <div className="text-sm text-muted-foreground">
                   Vagas limitadas
                 </div>
               </div>
             </div>
-            
+
             <div className="relative">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                <img 
-                  src={heroImage} 
-                  alt="Pets felizes no Hostel da Mel" 
+                <img
+                  src={heroImage}
+                  alt="Pets felizes no Hostel da Mel"
                   className="w-full h-auto object-cover"
                 />
               </div>
@@ -94,7 +106,7 @@ const Home = () => {
               Oferecemos o melhor em hospedagem e cuidados para seu pet
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="border-2 hover:border-primary transition-colors hover:shadow-lg">
               <CardContent className="pt-6">
@@ -107,39 +119,39 @@ const Home = () => {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card className="border-2 hover:border-primary transition-colors hover:shadow-lg">
               <CardContent className="pt-6">
                 <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mb-4">
                   <Shield className="w-6 h-6 text-accent" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">Segurança Total</h3>
+                <h3 className="font-bold text-lg mb-2">Seguranca Total</h3>
                 <p className="text-muted-foreground text-sm">
                   Ambiente seguro e higienizado com protocolos rigorosos
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card className="border-2 hover:border-primary transition-colors hover:shadow-lg">
               <CardContent className="pt-6">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
                   <Camera className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">Fotos Diárias</h3>
+                <h3 className="font-bold text-lg mb-2">Fotos Diarias</h3>
                 <p className="text-muted-foreground text-sm">
-                  Receba fotos e vídeos do seu pet todos os dias
+                  Receba fotos e videos do seu pet todos os dias
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card className="border-2 hover:border-primary transition-colors hover:shadow-lg">
               <CardContent className="pt-6">
                 <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mb-4">
                   <Calendar className="w-6 h-6 text-accent" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">Reserva Fácil</h3>
+                <h3 className="font-bold text-lg mb-2">Reserva Facil</h3>
                 <p className="text-muted-foreground text-sm">
-                  Sistema de reservas online simples e rápido
+                  Sistema de reservas online simples e rapido
                 </p>
               </CardContent>
             </Card>
@@ -157,8 +169,8 @@ const Home = () => {
                   Garanta a vaga do seu pet!
                 </h2>
                 <p className="text-white/90 mb-8 text-lg">
-                  As vagas são limitadas. Reserve agora e garanta
-                  tranquilidade para você e conforto para seu pet.
+                  As vagas sao limitadas. Reserve agora e garanta
+                  tranquilidade para voce e conforto para seu pet.
                 </p>
                 <Button asChild size="lg" variant="outline" className="bg-white text-primary hover:bg-white/90">
                   <Link to="/booking">
@@ -173,13 +185,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-card border-t border-border py-8">
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>&copy; 2026 Hostel da Mel. Todos os direitos reservados.</p>
-          <p className="text-xs mt-2 opacity-50">Desenvolvido por <a href="https://l2.tec.br" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 underline">l2.tec.br</a></p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
