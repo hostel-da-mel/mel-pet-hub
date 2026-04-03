@@ -40,65 +40,65 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       {/* Welcome */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold">
           Bem-vindo(a),{" "}
           <span className="bg-gradient-to-r from-honey-gold to-honey-dark bg-clip-text text-transparent">
             {firstName}
           </span>
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
           Gerencie seus pets e acompanhe suas reservas
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <Card className="border-2 hover:border-primary/30 transition-colors">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Pets cadastrados</p>
-                <p className="text-3xl font-bold mt-1">
+          <CardContent className="p-4 sm:pt-6 sm:px-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-muted-foreground">Pets cadastrados</p>
+                <p className="text-2xl sm:text-3xl font-bold mt-1">
                   {loadingPets ? (
-                    <Loader2 className="w-6 h-6 animate-spin" />
+                    <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" />
                   ) : (
                     pets.length
                   )}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                <PawPrint className="w-6 h-6 text-primary" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <PawPrint className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-2 hover:border-primary/30 transition-colors">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Reservas ativas</p>
-                <p className="text-3xl font-bold mt-1">0</p>
+          <CardContent className="p-4 sm:pt-6 sm:px-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-muted-foreground">Reservas ativas</p>
+                <p className="text-2xl sm:text-3xl font-bold mt-1">0</p>
               </div>
-              <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-accent" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-accent/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2 hover:border-primary/30 transition-colors sm:col-span-2 lg:col-span-1">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Perfil</p>
-                <p className="text-sm font-medium mt-1 text-foreground truncate max-w-[180px]">
+        <Card className="border-2 hover:border-primary/30 transition-colors col-span-2 lg:col-span-1">
+          <CardContent className="p-4 sm:pt-6 sm:px-6">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-muted-foreground">Perfil</p>
+                <p className="text-sm font-medium mt-1 text-foreground truncate">
                   {user?.email}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-honey-gold/10 rounded-xl flex items-center justify-center">
-                <User className="w-6 h-6 text-honey-gold" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-honey-gold/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <User className="w-5 h-5 sm:w-6 sm:h-6 text-honey-gold" />
               </div>
             </div>
           </CardContent>

@@ -37,14 +37,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-cream">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-cream">
       {/* Top navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2 group">
-              <PawPrint className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
-              <span className="text-xl font-bold bg-gradient-to-r from-honey-gold to-honey-dark bg-clip-text text-transparent">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
+              <PawPrint className="w-7 h-7 sm:w-8 sm:h-8 text-primary group-hover:scale-110 transition-transform" />
+              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-honey-gold to-honey-dark bg-clip-text text-transparent">
                 Hostel da Mel
               </span>
             </Link>
@@ -55,7 +56,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2 px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     isActive(item.path)
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -67,12 +68,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               ))}
             </div>
 
-            <div className="flex items-center gap-3">
+            {/* Right side */}
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="hidden sm:flex items-center gap-2 text-sm">
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                   <User className="w-4 h-4 text-primary" />
                 </div>
-                <span className="font-medium text-foreground max-w-[150px] truncate">
+                <span className="font-medium text-foreground max-w-[120px] lg:max-w-[150px] truncate">
                   {user?.nome?.split(" ")[0]}
                 </span>
               </div>
@@ -80,17 +82,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 onClick={handleLogout}
                 variant="ghost"
                 size="sm"
-                className="text-muted-foreground hover:text-destructive"
+                className="text-muted-foreground hover:text-destructive hidden sm:flex"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Sair</span>
+                Sair
               </Button>
 
               {/* Mobile menu toggle */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden h-9 w-9"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? (
@@ -106,7 +108,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md">
-            <div className="container mx-auto px-4 py-3 space-y-1">
+            <div className="px-4 py-3 space-y-1">
               {menuItems.map((item) => (
                 <Link
                   key={item.path}
@@ -122,19 +124,45 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   {item.label}
                 </Link>
               ))}
+
+              {/* Mobile user info + logout */}
+              <div className="border-t border-border mt-2 pt-3">
+                <div className="flex items-center justify-between px-4 py-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="text-sm font-medium truncate max-w-[180px]">
+                      {user?.nome}
+                    </span>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sair
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         )}
       </nav>
 
       {/* Content */}
-      <main className="pt-24 pb-16">
+      <main className="flex-1 pt-20 sm:pt-24 pb-12 sm:pb-16">
         <div className="container mx-auto px-4">{children}</div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6">
-        <div className="container mx-auto px-4 text-center text-muted-foreground text-sm">
+      <footer className="border-t border-border py-4 sm:py-6">
+        <div className="container mx-auto px-4 text-center text-muted-foreground text-xs sm:text-sm">
           <p>&copy; 2026 Hostel da Mel. Todos os direitos reservados.</p>
           <p className="text-xs mt-1 opacity-50">
             Desenvolvido por{" "}

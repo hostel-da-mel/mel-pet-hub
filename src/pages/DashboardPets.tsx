@@ -119,13 +119,13 @@ const DashboardPets = () => {
   return (
     <DashboardLayout>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <PawPrint className="w-8 h-8 text-primary" />
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+            <PawPrint className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
             Meus Pets
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Gerencie os pets cadastrados na sua conta
           </p>
         </div>
@@ -355,18 +355,18 @@ const DashboardPets = () => {
               className="overflow-hidden hover:shadow-md transition-shadow border-2 hover:border-primary/20"
             >
               <div
-                className="flex items-center justify-between p-5 cursor-pointer"
+                className="flex items-center justify-between p-4 sm:p-5 cursor-pointer"
                 onClick={() =>
                   setExpandedPet(expandedPet === pet.id ? null : pet.id)
                 }
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center">
-                    <PawPrint className="w-7 h-7 text-primary" />
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                  <div className="w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br from-primary/20 to-primary/5 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <PawPrint className="w-5 h-5 sm:w-7 sm:h-7 text-primary" />
                   </div>
-                  <div>
-                    <h3 className="font-bold text-lg">{pet.nome}</h3>
-                    <p className="text-sm text-muted-foreground">{pet.raca}</p>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-base sm:text-lg truncate">{pet.nome}</h3>
+                    <p className="text-sm text-muted-foreground truncate">{pet.raca}</p>
                   </div>
                 </div>
 
@@ -397,8 +397,8 @@ const DashboardPets = () => {
               </div>
 
               {expandedPet === pet.id && (
-                <div className="px-5 pb-5 border-t bg-muted/30 animate-in slide-in-from-top-1">
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+                <div className="px-4 pb-4 sm:px-5 sm:pb-5 border-t bg-muted/30 animate-in slide-in-from-top-1">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-4">
                     <div className="flex items-center gap-3 p-3 bg-card rounded-xl">
                       <Scale className="w-5 h-5 text-primary" />
                       <div>
