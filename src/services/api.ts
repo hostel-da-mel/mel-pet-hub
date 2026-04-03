@@ -191,16 +191,26 @@ class ApiService {
   }
 
   async loginWithGoogle() {
-    // Redirect to Google OAuth endpoint
     if (typeof window === 'undefined') {
       throw new Error('Login com Google está disponível apenas no navegador.');
     }
 
-    if (!this.baseUrl) {
-      throw new Error('URL base da API não está configurada.');
+    const { clientId, redirectUri } = config.google;
+
+    if (!clientId) {
+      throw new Error('Google Client ID não configurado.');
     }
 
-    window.location.href = `${this.baseUrl}/auth/google`;
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: 'openid email profile',
+      access_type: 'offline',
+      prompt: 'consent',
+    });
+
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
   }
 
   async handleGoogleCallback(code: string): Promise<AuthResponse> {
