@@ -179,8 +179,8 @@ class ApiService {
       body: JSON.stringify({ email, senha }),
     });
 
-    if (response.token) {
-      this.setToken(response.token);
+    if (response.accessToken) {
+      this.setToken(response.accessToken);
     }
 
     return response;
@@ -219,8 +219,8 @@ class ApiService {
       body: JSON.stringify({ code }),
     });
 
-    if (response.token) {
-      this.setToken(response.token);
+    if (response.accessToken) {
+      this.setToken(response.accessToken);
     }
 
     return response;
