@@ -24,13 +24,13 @@ const Home = () => {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Aqui o amor e o cuidado{" "}
                 <span className="bg-gradient-to-r from-honey-gold to-honey-dark bg-clip-text text-transparent">
-                  nunca tiram férias
+                  estão sempre presentes
                 </span>
               </h1>
               
               <p className="text-lg text-muted-foreground max-w-xl">
                 Reserve já a vaga do seu pet e garanta o melhor cuidado
-                enquanto você aproveita suas férias. Hospedagem com todo carinho e atenção
+                sempre que precisar. Hospedagem com todo carinho e atenção
                 que seu melhor amigo merece.
               </p>
               
@@ -154,7 +154,7 @@ const Home = () => {
             <CardContent className="p-12 relative z-10">
               <div className="max-w-2xl mx-auto text-center">
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                  Não deixe para a última hora!
+                  Garanta a vaga do seu pet!
                 </h2>
                 <p className="text-white/90 mb-8 text-lg">
                   As vagas são limitadas. Reserve agora e garanta
@@ -176,7 +176,8 @@ const Home = () => {
       {/* Footer */}
       <footer className="bg-card border-t border-border py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>&copy; 2025 Hostel da Mel. Todos os direitos reservados.</p>
+          <p>&copy; 2026 Hostel da Mel. Todos os direitos reservados.</p>
+          <p className="text-xs mt-2 opacity-50">Desenvolvido por <a href="https://l2.tec.br" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 underline">l2.tec.br</a></p>
         </div>
       </footer>
     </div>
