@@ -4,11 +4,30 @@
 
 export interface User {
   id: string;
+  sub: string;
   nome: string;
   email: string;
   telefone: string;
+  role: string;
   endereco?: string;
   aniversario?: string;
+}
+
+export interface AdminUser {
+  sub: string;
+  nome: string;
+  email: string;
+  telefone: string;
+  role: string;
+  status: string;
+  created_at: string;
+}
+
+export interface BlockedDate {
+  id: string;
+  date: string;
+  reason: string;
+  created_at: string;
 }
 
 export interface AuthResponse {

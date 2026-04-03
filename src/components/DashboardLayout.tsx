@@ -9,18 +9,30 @@ import {
   Calendar,
   Menu,
   X,
+  Users,
+  CalendarOff,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const menuItems = [
+interface MenuItem {
+  path: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  adminOnly?: boolean;
+  separator?: boolean;
+}
+
+const allMenuItems: MenuItem[] = [
   { path: "/dashboard", label: "Painel", icon: Home },
   { path: "/dashboard/pets", label: "Meus Pets", icon: PawPrint },
   { path: "/dashboard/perfil", label: "Meu Perfil", icon: User },
   { path: "/booking", label: "Reservas", icon: Calendar },
+  { path: "/admin/usuarios", label: "Usuarios", icon: Users, adminOnly: true, separator: true },
+  { path: "/admin/datas-bloqueadas", label: "Datas Bloqueadas", icon: CalendarOff, adminOnly: true },
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
@@ -28,6 +40,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const isAdmin = user?.role === "admin";
+
+  const menuItems = useMemo(
+    () => allMenuItems.filter((item) => !item.adminOnly || isAdmin),
+    [isAdmin]
+  );
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -53,18 +72,22 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-1">
               {menuItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center gap-2 px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isActive(item.path)
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
-                </Link>
+                <div key={item.path} className="flex items-center">
+                  {item.separator && (
+                    <div className="w-px h-6 bg-border mx-1" />
+                  )}
+                  <Link
+                    to={item.path}
+                    className={`flex items-center gap-2 px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      isActive(item.path)
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {item.label}
+                  </Link>
+                </div>
               ))}
             </div>
 
@@ -110,19 +133,23 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md">
             <div className="px-4 py-3 space-y-1">
               {menuItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                    isActive(item.path)
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
-                </Link>
+                <div key={item.path}>
+                  {item.separator && (
+                    <div className="border-t border-border my-2 mx-4" />
+                  )}
+                  <Link
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                      isActive(item.path)
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {item.label}
+                  </Link>
+                </div>
               ))}
 
               {/* Mobile user info + logout */}

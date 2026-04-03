@@ -12,6 +12,8 @@ import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import DashboardPets from "./pages/DashboardPets";
 import DashboardProfile from "./pages/DashboardProfile";
+import AdminUsers from "./pages/AdminUsers";
+import AdminBlockedDates from "./pages/AdminBlockedDates";
 import Booking from "./pages/Booking";
 import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
@@ -50,7 +52,14 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/booking" element={<Booking />} />
+            <Route
+              path="/booking"
+              element={
+                <ProtectedRoute>
+                  <Booking />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/contact" element={<Contact />} />
             <Route path="/sobre-nos" element={<AboutUs />} />
 
@@ -76,6 +85,24 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardProfile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin routes */}
+            <Route
+              path="/admin/usuarios"
+              element={
+                <ProtectedRoute>
+                  <AdminUsers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/datas-bloqueadas"
+              element={
+                <ProtectedRoute>
+                  <AdminBlockedDates />
                 </ProtectedRoute>
               }
             />

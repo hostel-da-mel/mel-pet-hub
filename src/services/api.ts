@@ -1,6 +1,8 @@
 import { config } from '@/config/environment';
 import type {
   User,
+  AdminUser,
+  BlockedDate,
   AuthResponse,
   RegisterData,
   RegisterPetData,
@@ -251,6 +253,39 @@ class ApiService {
     return this.request<Pet[]>('/pets', {
       method: 'GET',
     });
+  }
+
+  // Admin - Users
+  async adminListUsers(): Promise<AdminUser[]> {
+    return this.request<AdminUser[]>('/admin/users', { method: 'GET' });
+  }
+
+  async adminDisableUser(sub: string): Promise<void> {
+    await this.request<void>(`/admin/users/${sub}/disable`, { method: 'POST' });
+  }
+
+  async adminEnableUser(sub: string): Promise<void> {
+    await this.request<void>(`/admin/users/${sub}/enable`, { method: 'POST' });
+  }
+
+  async adminDeleteUser(sub: string): Promise<void> {
+    await this.request<void>(`/admin/users/${sub}`, { method: 'DELETE' });
+  }
+
+  // Admin - Blocked Dates
+  async adminListBlockedDates(): Promise<BlockedDate[]> {
+    return this.request<BlockedDate[]>('/admin/blocked-dates', { method: 'GET' });
+  }
+
+  async adminCreateBlockedDate(date: string, reason: string): Promise<BlockedDate> {
+    return this.request<BlockedDate>('/admin/blocked-dates', {
+      method: 'POST',
+      body: JSON.stringify({ date, reason }),
+    });
+  }
+
+  async adminDeleteBlockedDate(id: string): Promise<void> {
+    await this.request<void>(`/admin/blocked-dates/${id}`, { method: 'DELETE' });
   }
 
   async uploadDocument(petId: string, file: File, type: 'vacina' | 'convenio') {
