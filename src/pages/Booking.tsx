@@ -73,16 +73,20 @@ const BookingPage = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [petsData, bookingsData] = await Promise.all([
-          api.getPets(),
-          api.getMyBookings(),
-        ]);
+        const petsData = await api.getPets();
         setPets(petsData);
-        setBookings(bookingsData);
       } catch {
-        // handled by empty states
+        // handled by empty state
       } finally {
         setLoadingPets(false);
+      }
+
+      try {
+        const bookingsData = await api.getMyBookings();
+        setBookings(bookingsData);
+      } catch {
+        // bookings table may not exist yet
+      } finally {
         setLoadingBookings(false);
       }
     };

@@ -51,17 +51,20 @@ const Dashboard = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [petsData, bookingsData] = await Promise.all([
-          api.getPets(),
-          api.getMyBookings(),
-        ]);
+        const petsData = await api.getPets();
         setPets(petsData);
-        setBookings(bookingsData);
       } catch {
         // silently handle
-      } finally {
-        setLoadingPets(false);
       }
+
+      try {
+        const bookingsData = await api.getMyBookings();
+        setBookings(bookingsData);
+      } catch {
+        // silently handle - bookings table may not exist yet
+      }
+
+      setLoadingPets(false);
     };
     loadData();
   }, []);
