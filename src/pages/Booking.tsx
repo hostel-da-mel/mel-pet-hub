@@ -6,11 +6,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/services/api";
-import type { Pet } from "@/types/api";
+import type { Pet, Booking } from "@/types/api";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CreditCard, Loader2, PawPrint, Plus } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  Clock,
+  Loader2,
+  PawPrint,
+  Plus,
+  Send,
+  CheckCircle,
+  XCircle,
+  Hourglass,
+  CreditCard,
+} from "lucide-react";
 
 const DAILY_RATE = 80;
 
@@ -23,7 +35,26 @@ const durationOptions = [
   { value: "14", label: "2 semanas" },
 ];
 
-const Booking = () => {
+const periodoLabels: Record<string, string> = {
+  manha: "Manha (8h - 12h)",
+  tarde: "Tarde (12h - 18h)",
+  noite: "Noite (18h - 20h)",
+};
+
+const formatDate = (dateStr: string) => {
+  try {
+    return new Date(dateStr + "T00:00:00").toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+};
+
+const BookingPage = () => {
   const { toast } = useToast();
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [pets, setPets] = useState<Pet[]>([]);
@@ -32,19 +63,28 @@ const Booking = () => {
   const [periodo, setPeriodo] = useState("manha");
   const [duracao, setDuracao] = useState("3");
   const [pagamento, setPagamento] = useState("pix");
+  const [submitting, setSubmitting] = useState(false);
+
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(true);
 
   useEffect(() => {
-    const loadPets = async () => {
+    const loadData = async () => {
       try {
-        const data = await api.getPets();
-        setPets(data);
+        const [petsData, bookingsData] = await Promise.all([
+          api.getPets(),
+          api.getMyBookings(),
+        ]);
+        setPets(petsData);
+        setBookings(bookingsData);
       } catch {
-        // handled by empty state
+        // handled by empty states
       } finally {
         setLoadingPets(false);
+        setLoadingBookings(false);
       }
     };
-    loadPets();
+    loadData();
   }, []);
 
   const togglePet = (petId: string) => {
@@ -59,22 +99,65 @@ const Booking = () => {
   const total = totalPerPet * Math.max(selectedPets.length, 1);
   const duracaoLabel = durationOptions.find((d) => d.value === duracao)?.label || "";
 
-  const canSubmit = date && selectedPets.length > 0 && duracao;
+  const canSubmit = date && selectedPets.length > 0 && duracao && !submitting;
 
-  const handleBooking = () => {
-    if (!canSubmit) {
+  const handleBooking = async () => {
+    if (!canSubmit || !date) return;
+
+    setSubmitting(true);
+    try {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const dataEntrada = `${year}-${month}-${day}`;
+
+      const newBooking = await api.createBooking({
+        pet_ids: selectedPets,
+        data_entrada: dataEntrada,
+        periodo,
+        duracao: parseInt(duracao),
+        pagamento,
+      });
+
+      setBookings((prev) => [newBooking, ...prev]);
+      setDate(undefined);
+      setSelectedPets([]);
+      setDuracao("3");
+      setPeriodo("manha");
+      setPagamento("pix");
+
       toast({
-        title: "Preencha todos os campos",
-        description: "Selecione a data, pelo menos um pet e a duracao.",
+        title: "Reserva enviada!",
+        description:
+          "Sua reserva foi enviada para confirmacao. Em poucos instantes voce recebera uma resposta da anfitria.",
+      });
+    } catch {
+      toast({
+        title: "Erro",
+        description: "Erro ao enviar reserva. Tente novamente.",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setSubmitting(false);
     }
+  };
 
-    toast({
-      title: "Reserva solicitada!",
-      description: "Em breve voce recebera uma confirmacao por WhatsApp.",
-    });
+  const statusConfig = {
+    pendente: {
+      label: "Aguardando confirmacao",
+      icon: Hourglass,
+      className: "bg-honey-gold/10 text-honey-dark border-0",
+    },
+    confirmada: {
+      label: "Confirmada",
+      icon: CheckCircle,
+      className: "bg-accent/10 text-accent border-0",
+    },
+    rejeitada: {
+      label: "Rejeitada",
+      icon: XCircle,
+      className: "bg-destructive/10 text-destructive border-0",
+    },
   };
 
   return (
@@ -215,27 +298,15 @@ const Booking = () => {
               </CardContent>
             </Card>
 
+            {/* Summary and submit - no payment details until confirmed */}
             <Card>
               <CardHeader>
-                <CardTitle>Pagamento</CardTitle>
+                <CardTitle>Resumo</CardTitle>
                 <CardDescription>
-                  Escolha a forma de pagamento
+                  Confira os detalhes antes de enviar
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="pagamento">Forma de Pagamento</Label>
-                  <Select value={pagamento} onValueChange={setPagamento}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pix">PIX</SelectItem>
-                      <SelectItem value="credito">Cartao de Credito</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm text-muted-foreground">
@@ -271,7 +342,7 @@ const Booking = () => {
                   )}
                   <div className="border-t border-border pt-2 mt-2">
                     <div className="flex justify-between items-center">
-                      <span className="font-bold">Total</span>
+                      <span className="font-bold">Total estimado</span>
                       <span className="text-2xl font-bold text-primary">
                         R${" "}
                         {selectedPets.length > 0
@@ -282,6 +353,10 @@ const Booking = () => {
                   </div>
                 </div>
 
+                <p className="text-xs text-muted-foreground text-center">
+                  A forma de pagamento sera informada apos a confirmacao da reserva pela anfitria.
+                </p>
+
                 <Button
                   onClick={handleBooking}
                   size="lg"
@@ -289,16 +364,127 @@ const Booking = () => {
                   variant="hero"
                   disabled={!canSubmit}
                 >
-                  <CreditCard className="w-5 h-5" />
-                  Confirmar Reserva
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      Solicitar Reserva
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* My bookings */}
+        <div className="mt-10">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2">
+            <CalendarIcon className="w-6 h-6 text-primary" />
+            Minhas Reservas
+          </h2>
+
+          {loadingBookings ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : bookings.length === 0 ? (
+            <Card className="border-dashed border-2">
+              <CardContent className="py-12 text-center">
+                <CalendarIcon className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground">
+                  Voce ainda nao possui reservas.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {bookings
+                .sort((a, b) => b.created_at.localeCompare(a.created_at))
+                .map((booking) => {
+                  const sc = statusConfig[booking.status];
+                  const StatusIcon = sc.icon;
+
+                  return (
+                    <Card key={booking.id}>
+                      <CardContent className="p-4 sm:p-5">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                          <div className="space-y-2 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge className={sc.className}>
+                                <StatusIcon className="w-3 h-3 mr-1" />
+                                {sc.label}
+                              </Badge>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm">
+                              <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                              <span className="capitalize">
+                                {formatDate(booking.data_entrada)}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm">
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                              <span>
+                                {periodoLabels[booking.periodo] || booking.periodo} — {booking.duracao} dia(s)
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm">
+                              <PawPrint className="w-4 h-4 text-muted-foreground" />
+                              <span>
+                                {booking.pets.map((p) => p.nome).join(", ")}
+                              </span>
+                            </div>
+
+                            {booking.status === "rejeitada" && booking.motivo_rejeicao && (
+                              <div className="mt-2 p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
+                                <p className="text-sm text-destructive">
+                                  <strong>Motivo:</strong> {booking.motivo_rejeicao}
+                                </p>
+                              </div>
+                            )}
+
+                            {booking.status === "pendente" && (
+                              <div className="mt-2 p-3 bg-honey-gold/5 border border-honey-gold/20 rounded-lg">
+                                <p className="text-sm text-honey-dark">
+                                  Sua reserva foi enviada para confirmacao. Em poucos instantes voce recebera uma resposta da anfitria.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Payment info only for confirmed bookings */}
+                          {booking.status === "confirmada" && (
+                            <div className="sm:text-right flex-shrink-0">
+                              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-1">
+                                <CreditCard className="w-4 h-4" />
+                                Pagamento
+                              </div>
+                              <p className="text-2xl font-bold text-primary">
+                                R$ {booking.valor_total.toFixed(2).replace(".", ",")}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                via {booking.pagamento === "pix" ? "PIX" : "Cartao de Credito"}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+            </div>
+          )}
         </div>
       </div>
     </DashboardLayout>
   );
 };
 
-export default Booking;
+export default BookingPage;

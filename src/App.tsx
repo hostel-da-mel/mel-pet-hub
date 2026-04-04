@@ -15,6 +15,7 @@ import DashboardProfile from "./pages/DashboardProfile";
 import AdminUsers from "./pages/AdminUsers";
 import AdminBlockedDates from "./pages/AdminBlockedDates";
 import AdminAvailability from "./pages/AdminAvailability";
+import AdminBookings from "./pages/AdminBookings";
 import Booking from "./pages/Booking";
 import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
@@ -112,6 +113,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AdminAvailability />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/reservas"
+              element={
+                <ProtectedRoute>
+                  <AdminBookings />
                 </ProtectedRoute>
               }
             />

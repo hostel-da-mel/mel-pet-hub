@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/services/api";
-import type { Pet } from "@/types/api";
+import type { Pet, Booking } from "@/types/api";
 import {
   PawPrint,
   User,
@@ -19,20 +19,25 @@ import {
 const Dashboard = () => {
   const { user } = useAuth();
   const [pets, setPets] = useState<Pet[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loadingPets, setLoadingPets] = useState(true);
 
   useEffect(() => {
-    const loadPets = async () => {
+    const loadData = async () => {
       try {
-        const data = await api.getPets();
-        setPets(data);
+        const [petsData, bookingsData] = await Promise.all([
+          api.getPets(),
+          api.getMyBookings(),
+        ]);
+        setPets(petsData);
+        setBookings(bookingsData);
       } catch {
         // silently handle - user will see empty state
       } finally {
         setLoadingPets(false);
       }
     };
-    loadPets();
+    loadData();
   }, []);
 
   const firstName = user?.nome?.split(" ")[0] || "Cliente";
@@ -79,7 +84,9 @@ const Dashboard = () => {
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm text-muted-foreground">Reservas ativas</p>
-                <p className="text-2xl sm:text-3xl font-bold mt-1">0</p>
+                <p className="text-2xl sm:text-3xl font-bold mt-1">
+                  {bookings.filter((b) => b.status === "pendente" || b.status === "confirmada").length}
+                </p>
               </div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-accent/10 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />

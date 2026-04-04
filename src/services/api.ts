@@ -3,6 +3,7 @@ import type {
   User,
   AdminUser,
   BlockedDate,
+  Booking,
   AuthResponse,
   RegisterData,
   RegisterPetData,
@@ -252,6 +253,40 @@ class ApiService {
   async getPets(): Promise<Pet[]> {
     return this.request<Pet[]>('/pets', {
       method: 'GET',
+    });
+  }
+
+  // Bookings
+  async createBooking(data: {
+    pet_ids: string[];
+    data_entrada: string;
+    periodo: string;
+    duracao: number;
+    pagamento: string;
+  }): Promise<Booking> {
+    return this.request<Booking>('/bookings', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getMyBookings(): Promise<Booking[]> {
+    return this.request<Booking[]>('/bookings', { method: 'GET' });
+  }
+
+  // Admin - Bookings
+  async adminListBookings(): Promise<Booking[]> {
+    return this.request<Booking[]>('/admin/bookings', { method: 'GET' });
+  }
+
+  async adminConfirmBooking(id: string): Promise<void> {
+    await this.request<void>(`/admin/bookings/${id}/confirm`, { method: 'POST' });
+  }
+
+  async adminRejectBooking(id: string, motivo?: string): Promise<void> {
+    await this.request<void>(`/admin/bookings/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ motivo: motivo || '' }),
     });
   }
 

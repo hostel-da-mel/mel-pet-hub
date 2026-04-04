@@ -85,3 +85,25 @@ export interface Document {
   file_path: string;
   created_at: string;
 }
+
+export interface BookingPet {
+  id: string;
+  nome: string;
+}
+
+export interface Booking {
+  id: string;
+  usuario_id: string;
+  usuario_nome: string;
+  usuario_email: string;
+  pets: BookingPet[];
+  data_entrada: string;
+  periodo: string;
+  duracao: number;
+  valor_total: number;
+  pagamento: string;
+  status: 'pendente' | 'confirmada' | 'rejeitada';
+  motivo_rejeicao?: string;
+  created_at: string;
+  updated_at: string;
+}

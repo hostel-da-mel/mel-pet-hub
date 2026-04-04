@@ -12,6 +12,7 @@ import {
   Users,
   CalendarOff,
   CalendarCheck,
+  ClipboardList,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -32,7 +33,8 @@ const allMenuItems: MenuItem[] = [
   { path: "/dashboard/pets", label: "Meus Pets", icon: PawPrint },
   { path: "/dashboard/perfil", label: "Meu Perfil", icon: User },
   { path: "/booking", label: "Reservas", icon: Calendar },
-  { path: "/admin/usuarios", label: "Usuarios", icon: Users, adminOnly: true, separator: true },
+  { path: "/admin/reservas", label: "Reservas", icon: ClipboardList, adminOnly: true, separator: true },
+  { path: "/admin/usuarios", label: "Usuarios", icon: Users, adminOnly: true },
   { path: "/admin/datas-bloqueadas", label: "Datas Bloqueadas", icon: CalendarOff, adminOnly: true },
   { path: "/admin/disponibilidade", label: "Disponibilidade", icon: CalendarCheck, adminOnly: true },
 ];
