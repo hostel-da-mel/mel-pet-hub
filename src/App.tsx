@@ -19,6 +19,7 @@ import AdminBookings from "./pages/AdminBookings";
 import Booking from "./pages/Booking";
 import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
+import TermsOfUse from "./pages/TermsOfUse";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -64,6 +65,7 @@ const App = () => (
             />
             <Route path="/contact" element={<Contact />} />
             <Route path="/sobre-nos" element={<AboutUs />} />
+            <Route path="/termos-de-uso" element={<TermsOfUse />} />
 
             {/* Protected routes - Client area */}
             <Route

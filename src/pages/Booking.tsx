@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Calendar as CalendarIcon,
   Clock,
+  FileText,
   Loader2,
   PawPrint,
   Plus,
@@ -64,6 +65,7 @@ const BookingPage = () => {
   const [duracao, setDuracao] = useState("3");
   const [pagamento, setPagamento] = useState("pix");
   const [submitting, setSubmitting] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
@@ -99,7 +101,7 @@ const BookingPage = () => {
   const total = totalPerPet * Math.max(selectedPets.length, 1);
   const duracaoLabel = durationOptions.find((d) => d.value === duracao)?.label || "";
 
-  const canSubmit = date && selectedPets.length > 0 && duracao && !submitting;
+  const canSubmit = date && selectedPets.length > 0 && duracao && acceptedTerms && !submitting;
 
   const handleBooking = async () => {
     if (!canSubmit || !date) return;
@@ -356,6 +358,32 @@ const BookingPage = () => {
                 <p className="text-xs text-muted-foreground text-center">
                   A forma de pagamento sera informada apos a confirmacao da reserva pela anfitria.
                 </p>
+
+                {/* Terms acceptance */}
+                <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                  acceptedTerms
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:bg-muted"
+                }`}>
+                  <Checkbox
+                    checked={acceptedTerms}
+                    onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <span className="text-xs text-muted-foreground leading-relaxed">
+                    Li e concordo com os{" "}
+                    <Link
+                      to="/termos-de-uso"
+                      target="_blank"
+                      className="text-primary underline hover:text-primary/80 font-medium"
+                    >
+                      <FileText className="w-3 h-3 inline mr-0.5" />
+                      Termos de Uso
+                    </Link>{" "}
+                    do Hostel da Mel. Declaro que meu pet esta com a vacinacao em dia
+                    e que as informacoes cadastradas estao corretas.
+                  </span>
+                </label>
 
                 <Button
                   onClick={handleBooking}
