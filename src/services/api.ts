@@ -210,7 +210,6 @@ class ApiService {
       response_type: 'code',
       scope: 'openid email profile',
       access_type: 'offline',
-      prompt: 'consent',
     });
 
     window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
@@ -235,11 +234,43 @@ class ApiService {
     });
   }
 
-  async updateProfile(data: { nome?: string; telefone?: string }): Promise<User> {
+  async updateProfile(data: { nome?: string; telefone?: string; endereco?: string; aniversario?: string; picture?: string }): Promise<User> {
     return this.request<User>('/auth/me', {
       method: 'PUT',
       body: JSON.stringify(data),
     });
+  }
+
+  async changePassword(senhaAtual: string, novaSenha: string): Promise<void> {
+    await this.request<{ message: string }>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ senha_atual: senhaAtual, nova_senha: novaSenha }),
+    });
+  }
+
+  // Photos
+  async uploadProfilePhoto(email: string, file: File): Promise<string> {
+    const extension = file.name.split('.').pop() || 'jpg';
+    const filename = `profile.${extension}`;
+    const path = `/photos/${encodeURIComponent(email)}/${filename}`;
+
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type,
+      },
+      body: file,
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao enviar foto');
+    }
+
+    return `${this.baseUrl}${path}`;
+  }
+
+  getProfilePhotoUrl(email: string): string {
+    return `${this.baseUrl}/photos/${encodeURIComponent(email)}/profile.jpg`;
   }
 
   // Pets

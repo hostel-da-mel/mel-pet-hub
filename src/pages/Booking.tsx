@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/services/api";
 import type { Pet, Booking } from "@/types/api";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,6 +24,8 @@ import {
   XCircle,
   Hourglass,
   CreditCard,
+  AlertTriangle,
+  User,
 } from "lucide-react";
 
 const DAILY_RATE = 80;
@@ -56,7 +59,9 @@ const formatDate = (dateStr: string) => {
 };
 
 const BookingPage = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
+  const hasTelefone = !!(user?.telefone && user.telefone.trim().length > 0);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [pets, setPets] = useState<Pet[]>([]);
   const [loadingPets, setLoadingPets] = useState(true);
@@ -105,7 +110,7 @@ const BookingPage = () => {
   const total = totalPerPet * Math.max(selectedPets.length, 1);
   const duracaoLabel = durationOptions.find((d) => d.value === duracao)?.label || "";
 
-  const canSubmit = date && selectedPets.length > 0 && duracao && acceptedTerms && !submitting;
+  const canSubmit = date && selectedPets.length > 0 && duracao && acceptedTerms && !submitting && hasTelefone;
 
   const handleBooking = async () => {
     if (!canSubmit || !date) return;
@@ -175,6 +180,34 @@ const BookingPage = () => {
             Escolha a data e periodo para a hospedagem do seu pet
           </p>
         </div>
+
+        {/* Phone missing alert */}
+        {!hasTelefone && (
+          <Card className="mb-6 sm:mb-8 border-2 border-honey-gold/50 bg-honey-gold/5">
+            <CardContent className="py-4 px-4 sm:px-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 bg-honey-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-honey-dark" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm text-honey-dark mb-1">
+                    Complete seu cadastro para fazer reservas
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Para realizar uma reserva, e necessario ter o telefone cadastrado no seu perfil.
+                    Precisamos do seu telefone para entrar em contato sobre a reserva.
+                  </p>
+                </div>
+                <Button asChild size="sm" className="flex-shrink-0">
+                  <Link to="/dashboard/perfil">
+                    <User className="w-4 h-4" />
+                    Completar Perfil
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
           <Card>

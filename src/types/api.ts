@@ -9,8 +9,10 @@ export interface User {
   email: string;
   telefone: string;
   role: string;
+  provider?: string;
   endereco?: string;
   aniversario?: string;
+  picture?: string;
 }
 
 export interface AdminUser {
