@@ -378,7 +378,7 @@ const Dashboard = () => {
                     Hostel da Mel
                   </p>
                   <Button asChild>
-                    <Link to="/dashboard/pets">
+                    <Link to="/dashboard/pets?cadastrar=true">
                       <Plus className="w-4 h-4" />
                       Cadastrar Pet
                     </Link>
@@ -471,7 +471,7 @@ const Dashboard = () => {
                   variant="ghost"
                   className="w-full justify-start"
                 >
-                  <Link to="/dashboard/pets">
+                  <Link to="/dashboard/pets?cadastrar=true">
                     <Plus className="w-4 h-4" />
                     Cadastrar Novo Pet
                   </Link>

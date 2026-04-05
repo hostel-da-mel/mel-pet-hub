@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,9 +25,10 @@ import {
 
 const DashboardPets = () => {
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(searchParams.get("cadastrar") === "true");
   const [submitting, setSubmitting] = useState(false);
   const [expandedPet, setExpandedPet] = useState<string | null>(null);
   const [formData, setFormData] = useState({

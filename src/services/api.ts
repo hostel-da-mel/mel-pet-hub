@@ -219,7 +219,7 @@ class ApiService {
   async handleGoogleCallback(code: string): Promise<AuthResponse> {
     const response = await this.request<AuthResponse>('/auth/google/callback', {
       method: 'POST',
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ code, redirect_uri: config.google.redirectUri }),
     });
 
     if (response.accessToken) {
