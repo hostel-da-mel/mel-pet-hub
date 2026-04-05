@@ -250,14 +250,15 @@ class ApiService {
 
   // Photos
   async uploadProfilePhoto(email: string, file: File): Promise<string> {
-    const extension = file.name.split('.').pop() || 'jpg';
-    const filename = `profile.${extension}`;
+    // Always save as profile.jpg (the crop modal already converts to JPEG)
+    const filename = 'profile.jpg';
     const path = `/photos/${encodeURIComponent(email)}/${filename}`;
 
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': file.type,
+        'Content-Type': 'image/jpeg',
+        'Cache-Control': 'public, max-age=604800',
       },
       body: file,
     });
@@ -266,7 +267,8 @@ class ApiService {
       throw new Error('Erro ao enviar foto');
     }
 
-    return `${this.baseUrl}${path}`;
+    // Append cache-busting param so the browser loads the new version
+    return `${this.baseUrl}${path}?v=${Date.now()}`;
   }
 
   getProfilePhotoUrl(email: string): string {

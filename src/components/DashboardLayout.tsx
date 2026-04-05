@@ -56,6 +56,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   const isAdmin = user?.role === "admin";
@@ -141,8 +142,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     userMenuOpen ? "bg-primary/10" : "hover:bg-muted"
                   }`}
                 >
-                  {user?.picture ? (
-                    <img src={user.picture} alt="" className="w-8 h-8 rounded-full object-cover" />
+                  {user?.picture && !avatarError ? (
+                    <img
+                      src={user.picture}
+                      alt=""
+                      className="w-8 h-8 rounded-full object-cover"
+                      onError={() => setAvatarError(true)}
+                    />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-honey-gold to-honey-dark flex items-center justify-center text-white text-xs font-bold">
                       {initials}
@@ -243,10 +249,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md">
+          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain">
             <div className="px-4 py-3 space-y-1">
-              {/* Static pages */}
-              {staticLinks.map((link) => (
+              {/* Static pages — skip "Inicio" since logo already links there */}
+              {staticLinks.filter((link) => link.path !== "/").map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
@@ -324,8 +330,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <div className="border-t border-border mt-2 pt-3">
                 <div className="flex items-center justify-between px-4 py-2">
                   <div className="flex items-center gap-2">
-                    {user?.picture ? (
-                      <img src={user.picture} alt="" className="w-8 h-8 rounded-full object-cover" />
+                    {user?.picture && !avatarError ? (
+                      <img
+                        src={user.picture}
+                        alt=""
+                        className="w-8 h-8 rounded-full object-cover"
+                        onError={() => setAvatarError(true)}
+                      />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-honey-gold to-honey-dark flex items-center justify-center text-white text-xs font-bold">
                         {initials}

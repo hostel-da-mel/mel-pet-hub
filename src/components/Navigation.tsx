@@ -100,9 +100,9 @@ const Navigation = () => {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md">
+        <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain">
           <div className="px-4 py-3 space-y-1">
-            {staticLinks.map((link) => (
+            {staticLinks.filter((link) => link.path !== "/").map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
