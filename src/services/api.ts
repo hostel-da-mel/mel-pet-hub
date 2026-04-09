@@ -7,7 +7,9 @@ import type {
   AuthResponse,
   RegisterData,
   RegisterPetData,
+  UpdatePetData,
   Pet,
+  PetDocument,
 } from '@/types/api';
 
 export class ApiRequestError extends Error {
@@ -289,6 +291,82 @@ class ApiService {
     });
   }
 
+  async getPet(id: string): Promise<Pet> {
+    return this.request<Pet>(`/pets/${id}`, { method: 'GET' });
+  }
+
+  async updatePet(id: string, data: UpdatePetData): Promise<Pet> {
+    return this.request<Pet>(`/pets/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Pet Photo (single photo per pet, stored under user prefix + pet id)
+  async uploadPetPhoto(email: string, petId: string, file: File): Promise<string> {
+    const filename = `pet-${petId}.jpg`;
+    const path = `/photos/${encodeURIComponent(email)}/${filename}`;
+
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'image/jpeg',
+        'Cache-Control': 'public, max-age=604800',
+      },
+      body: file,
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao enviar foto do pet');
+    }
+
+    return `${this.baseUrl}${path}?v=${Date.now()}`;
+  }
+
+  getPetPhotoUrl(email: string, petId: string): string {
+    return `${this.baseUrl}/photos/${encodeURIComponent(email)}/pet-${petId}.jpg`;
+  }
+
+  // Pet documents (S3, prefixed by user sub + pet id)
+  async listPetDocuments(petId: string): Promise<PetDocument[]> {
+    return this.request<PetDocument[]>(`/pets/${petId}/documents`, { method: 'GET' });
+  }
+
+  async uploadPetDocument(petId: string, file: File): Promise<void> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', 'documento');
+
+    const token = this.resolveToken();
+    const headers: HeadersInit = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const response = await fetch(`${this.baseUrl}/pets/${petId}/documents`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao enviar documento');
+    }
+  }
+
+  async deletePetDocument(petId: string, name: string): Promise<void> {
+    const token = this.resolveToken();
+    const headers: HeadersInit = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const response = await fetch(
+      `${this.baseUrl}/pets/${petId}/documents?name=${encodeURIComponent(name)}`,
+      { method: 'DELETE', headers }
+    );
+
+    if (!response.ok) {
+      throw new Error('Erro ao excluir documento');
+    }
+  }
+
   // Bookings
   async createBooking(data: {
     pet_ids: string[];
@@ -360,24 +438,6 @@ class ApiService {
     await this.request<void>(`/admin/blocked-dates/${id}`, { method: 'DELETE' });
   }
 
-  async uploadDocument(petId: string, file: File, type: 'vacina' | 'convenio') {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('type', type);
-
-    const token = this.resolveToken();
-    const headers: HeadersInit = {};
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    return fetch(`${this.baseUrl}/pets/${petId}/documents`, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
-  }
 }
 
 export const api = new ApiService();

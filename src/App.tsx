@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import DashboardPets from "./pages/DashboardPets";
+import DashboardPetEdit from "./pages/DashboardPetEdit";
 import DashboardProfile from "./pages/DashboardProfile";
 import AdminUsers from "./pages/AdminUsers";
 import AdminBlockedDates from "./pages/AdminBlockedDates";
@@ -81,6 +82,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <DashboardPets />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/pets/:id/editar"
+              element={
+                <ProtectedRoute>
+                  <DashboardPetEdit />
                 </ProtectedRoute>
               }
             />

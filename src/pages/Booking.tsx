@@ -99,12 +99,23 @@ const BookingPage = () => {
   }, []);
 
   const togglePet = (petId: string) => {
+    const target = pets.find((p) => p.id === petId);
+    if (target && !target.foto) {
+      toast({
+        title: "Pet sem foto",
+        description: `${target.nome} nao possui foto cadastrada e nao pode fazer reservas. Adicione uma foto na edicao do pet.`,
+        variant: "destructive",
+      });
+      return;
+    }
     setSelectedPets((prev) =>
       prev.includes(petId)
         ? prev.filter((id) => id !== petId)
         : [...prev, petId]
     );
   };
+
+  const petsWithoutPhoto = pets.filter((p) => !p.foto);
 
   const totalPerPet = DAILY_RATE * parseInt(duracao);
   const total = totalPerPet * Math.max(selectedPets.length, 1);
@@ -291,25 +302,51 @@ const BookingPage = () => {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {pets.map((pet) => (
-                        <label
-                          key={pet.id}
-                          className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                            selectedPets.includes(pet.id)
-                              ? "border-primary bg-primary/5"
-                              : "border-border hover:bg-muted"
-                          }`}
-                        >
-                          <Checkbox
-                            checked={selectedPets.includes(pet.id)}
-                            onCheckedChange={() => togglePet(pet.id)}
-                          />
-                          <PawPrint className="w-4 h-4 text-primary flex-shrink-0" />
-                          <span className="text-sm font-medium">
-                            {pet.nome} — {pet.raca} ({pet.peso}kg)
-                          </span>
-                        </label>
-                      ))}
+                      {pets.map((pet) => {
+                        const disabled = !pet.foto;
+                        return (
+                          <label
+                            key={pet.id}
+                            className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+                              disabled
+                                ? "border-border bg-muted/50 cursor-not-allowed opacity-70"
+                                : selectedPets.includes(pet.id)
+                                ? "border-primary bg-primary/5 cursor-pointer"
+                                : "border-border hover:bg-muted cursor-pointer"
+                            }`}
+                          >
+                            <Checkbox
+                              checked={selectedPets.includes(pet.id)}
+                              onCheckedChange={() => togglePet(pet.id)}
+                              disabled={disabled}
+                            />
+                            <PawPrint className="w-4 h-4 text-primary flex-shrink-0" />
+                            <span className="text-sm font-medium flex-1">
+                              {pet.nome} — {pet.raca} ({pet.peso}kg)
+                            </span>
+                            {disabled && (
+                              <Link
+                                to={`/dashboard/pets/${pet.id}/editar`}
+                                className="text-xs text-honey-dark underline whitespace-nowrap"
+                              >
+                                Adicionar foto
+                              </Link>
+                            )}
+                          </label>
+                        );
+                      })}
+                      {petsWithoutPhoto.length > 0 && (
+                        <div className="p-3 rounded-lg border border-honey-gold/50 bg-honey-gold/5 flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 text-honey-dark flex-shrink-0 mt-0.5" />
+                          <p className="text-xs text-honey-dark">
+                            {petsWithoutPhoto.length === 1
+                              ? "1 pet nao possui foto"
+                              : `${petsWithoutPhoto.length} pets nao possuem foto`}{" "}
+                            cadastrada e nao pode(m) ser selecionado(s) para
+                            reservas. Adicione uma foto na tela de edicao do pet.
+                          </p>
+                        </div>
+                      )}
                       {selectedPets.length > 0 && (
                         <p className="text-xs text-muted-foreground">
                           {selectedPets.length} pet(s) selecionado(s)

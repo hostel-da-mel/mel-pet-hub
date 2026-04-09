@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,8 @@ import {
   X,
   ChevronDown,
   ChevronUp,
+  Pencil,
+  AlertTriangle,
 } from "lucide-react";
 
 const DashboardPets = () => {
@@ -455,10 +457,35 @@ const DashboardPets = () => {
                     )}
                   </div>
 
-                  <p className="text-xs text-muted-foreground mt-4">
-                    Cadastrado em{" "}
-                    {new Date(pet.created_at).toLocaleDateString("pt-BR")}
-                  </p>
+                  {pet.observacoes && (
+                    <div className="mt-4 p-3 bg-card rounded-xl">
+                      <p className="text-xs text-muted-foreground mb-1">Observacoes</p>
+                      <p className="text-sm whitespace-pre-wrap">{pet.observacoes}</p>
+                    </div>
+                  )}
+
+                  {!pet.foto && (
+                    <div className="mt-4 p-3 rounded-xl border border-honey-gold/40 bg-honey-gold/5 flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 text-honey-dark flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-honey-dark">
+                        Este pet ainda nao possui foto cadastrada e nao podera
+                        fazer reservas. Adicione uma foto na tela de edicao.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between mt-4">
+                    <p className="text-xs text-muted-foreground">
+                      Cadastrado em{" "}
+                      {new Date(pet.created_at).toLocaleDateString("pt-BR")}
+                    </p>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to={`/dashboard/pets/${pet.id}/editar`}>
+                        <Pencil className="w-4 h-4" />
+                        Editar
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               )}
             </Card>

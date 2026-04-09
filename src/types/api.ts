@@ -55,6 +55,8 @@ export interface Pet {
   adestrado: boolean;
   castrado: boolean;
   alimentacao?: string;
+  observacoes?: string;
+  foto?: string;
   usuario_id: string;
   created_at: string;
   updated_at: string;
@@ -78,14 +80,19 @@ export interface RegisterPetData {
   adestrado: boolean;
   castrado: boolean;
   alimentacao?: string;
+  observacoes?: string;
 }
 
-export interface Document {
-  id: string;
-  pet_id: string;
-  type: 'vacina' | 'convenio';
-  file_path: string;
-  created_at: string;
+export interface UpdatePetData extends RegisterPetData {
+  foto?: string;
+}
+
+export interface PetDocument {
+  key: string;
+  name: string;
+  size: number;
+  last_modified: string;
+  url: string;
 }
 
 export interface BookingPet {
