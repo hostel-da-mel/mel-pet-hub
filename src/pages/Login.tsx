@@ -64,6 +64,12 @@ const Login = () => {
                   {loading ? "Entrando..." : "Entrar"}
                 </Button>
 
+                <div className="text-center text-sm">
+                  <Link to="/recuperar-senha" className="text-primary hover:underline">
+                    Esqueci minha senha
+                  </Link>
+                </div>
+
                 <div className="text-center text-sm text-muted-foreground">
                   Ainda não tem conta?{" "}
                   <Link to="/register" className="text-primary hover:underline">

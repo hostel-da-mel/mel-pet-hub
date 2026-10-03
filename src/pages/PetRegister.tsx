@@ -57,10 +57,10 @@ const PetRegister = () => {
         castrado: false,
         alimentacao: "",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao cadastrar pet",
-        description: error.message || "Tente novamente mais tarde.",
+        description: (error instanceof Error ? error.message : "") || "Tente novamente mais tarde.",
         variant: "destructive",
       });
     } finally {

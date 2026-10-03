@@ -195,6 +195,20 @@ class ApiService {
     this.clearToken();
   }
 
+  async forgotPassword(email: string): Promise<void> {
+    await this.request<void>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async confirmForgotPassword(email: string, code: string, password: string): Promise<void> {
+    await this.request<void>('/auth/confirm-forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, code, password }),
+    });
+  }
+
   async loginWithGoogle() {
     if (typeof window === 'undefined') {
       throw new Error('Login com Google está disponível apenas no navegador.');

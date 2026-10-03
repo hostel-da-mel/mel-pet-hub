@@ -1,3 +1,5 @@
+import { DaycareSelect } from "@/components/DaycareSelect";
+import { daycareLabel, getDaycareFrequency, type DaycareFrequency } from "@/lib/daycare";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -46,6 +48,7 @@ const DashboardPetEdit = () => {
     peso: "",
     aniversario: "",
     frequenta_creche: false,
+    frequencia_creche: "" as DaycareFrequency | "",
     adestrado: false,
     castrado: false,
     alimentacao: "",
@@ -63,6 +66,7 @@ const DashboardPetEdit = () => {
         peso: String(data.peso),
         aniversario: data.aniversario || "",
         frequenta_creche: data.frequenta_creche,
+        frequencia_creche: getDaycareFrequency(data),
         adestrado: data.adestrado,
         castrado: data.castrado,
         alimentacao: data.alimentacao || "",
@@ -109,6 +113,7 @@ const DashboardPetEdit = () => {
         peso: parseFloat(formData.peso),
         aniversario: formData.aniversario || undefined,
         frequenta_creche: formData.frequenta_creche,
+        frequencia_creche: formData.frequencia_creche || undefined,
         adestrado: formData.adestrado,
         castrado: formData.castrado,
         alimentacao: formData.alimentacao || undefined,
@@ -119,10 +124,10 @@ const DashboardPetEdit = () => {
         description: "Os dados do seu pet foram salvos.",
       });
       await loadPet();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao atualizar pet",
-        description: error.message || "Tente novamente.",
+        description: (error instanceof Error ? error.message : "") || "Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -144,6 +149,7 @@ const DashboardPetEdit = () => {
         peso: parseFloat(formData.peso) || pet?.peso || 0,
         aniversario: formData.aniversario || undefined,
         frequenta_creche: formData.frequenta_creche,
+        frequencia_creche: formData.frequencia_creche || undefined,
         adestrado: formData.adestrado,
         castrado: formData.castrado,
         alimentacao: formData.alimentacao || undefined,
@@ -153,10 +159,10 @@ const DashboardPetEdit = () => {
       setPhotoVersion((v) => v + 1);
       await loadPet();
       toast({ title: "Foto enviada!", description: "A foto do pet foi atualizada." });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro no upload",
-        description: error.message || "Nao foi possivel enviar a foto.",
+        description: (error instanceof Error ? error.message : "") || "Nao foi possivel enviar a foto.",
         variant: "destructive",
       });
     } finally {
@@ -174,10 +180,10 @@ const DashboardPetEdit = () => {
       await api.uploadPetDocument(id, file);
       await loadDocuments();
       toast({ title: "Documento enviado!", description: file.name });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro no upload",
-        description: error.message || "Nao foi possivel enviar o documento.",
+        description: (error instanceof Error ? error.message : "") || "Nao foi possivel enviar o documento.",
         variant: "destructive",
       });
     } finally {
@@ -193,10 +199,10 @@ const DashboardPetEdit = () => {
       await api.deletePetDocument(id, doc.name);
       await loadDocuments();
       toast({ title: "Documento excluido" });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro",
-        description: error.message || "Nao foi possivel excluir.",
+        description: (error instanceof Error ? error.message : "") || "Nao foi possivel excluir.",
         variant: "destructive",
       });
     }
@@ -381,18 +387,9 @@ const DashboardPetEdit = () => {
               </div>
 
               <div className="grid sm:grid-cols-3 gap-4">
-                <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                  <Checkbox
-                    id="creche"
-                    checked={formData.frequenta_creche}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, frequenta_creche: checked as boolean })
-                    }
-                  />
-                  <label htmlFor="creche" className="text-sm font-medium cursor-pointer">
-                    Frequenta creche
-                  </label>
-                </div>
+                <DaycareSelect value={formData.frequencia_creche} onChange={value =>
+                  setFormData({ ...formData, frequencia_creche: value, frequenta_creche: value !== "nao" })
+                } />
                 <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                   <Checkbox
                     id="adestrado"

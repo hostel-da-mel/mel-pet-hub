@@ -1,3 +1,5 @@
+import { DaycareSelect } from "@/components/DaycareSelect";
+import { daycareLabel, getDaycareFrequency, type DaycareFrequency } from "@/lib/daycare";
 import { useEffect, useState, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -39,6 +41,7 @@ const DashboardPets = () => {
     peso: "",
     aniversario: "",
     frequenta_creche: false,
+    frequencia_creche: "" as DaycareFrequency | "",
     adestrado: false,
     castrado: false,
     alimentacao: "",
@@ -70,6 +73,7 @@ const DashboardPets = () => {
       peso: "",
       aniversario: "",
       frequenta_creche: false,
+    frequencia_creche: "" as DaycareFrequency | "",
       adestrado: false,
       castrado: false,
       alimentacao: "",
@@ -87,6 +91,7 @@ const DashboardPets = () => {
         peso: parseFloat(formData.peso),
         aniversario: formData.aniversario || undefined,
         frequenta_creche: formData.frequenta_creche,
+        frequencia_creche: formData.frequencia_creche || undefined,
         adestrado: formData.adestrado,
         castrado: formData.castrado,
         alimentacao: formData.alimentacao || undefined,
@@ -100,10 +105,10 @@ const DashboardPets = () => {
       resetForm();
       setShowForm(false);
       await loadPets();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao cadastrar pet",
-        description: error.message || "Tente novamente mais tarde.",
+        description: (error instanceof Error ? error.message : "") || "Tente novamente mais tarde.",
         variant: "destructive",
       });
     } finally {
@@ -240,25 +245,9 @@ const DashboardPets = () => {
               </div>
 
               <div className="grid sm:grid-cols-3 gap-4">
-                <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                  <Checkbox
-                    id="creche"
-                    checked={formData.frequenta_creche}
-                    onCheckedChange={(checked) =>
-                      setFormData({
-                        ...formData,
-                        frequenta_creche: checked as boolean,
-                      })
-                    }
-                  />
-                  <label
-                    htmlFor="creche"
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    Frequenta creche
-                  </label>
-                </div>
-
+                <DaycareSelect value={formData.frequencia_creche} onChange={value =>
+                  setFormData({ ...formData, frequencia_creche: value, frequenta_creche: value !== "nao" })
+                } />
                 <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                   <Checkbox
                     id="adestrado"
@@ -388,7 +377,7 @@ const DashboardPets = () => {
                     )}
                     {pet.frequenta_creche && (
                       <Badge variant="secondary" className="bg-honey-gold/10 text-honey-dark border-0">
-                        Creche
+                        Creche: {daycareLabel(pet)}
                       </Badge>
                     )}
                   </div>
@@ -452,7 +441,7 @@ const DashboardPets = () => {
                     )}
                     {pet.frequenta_creche && (
                       <Badge variant="secondary" className="bg-honey-gold/10 text-honey-dark border-0">
-                        Creche
+                        Creche: {daycareLabel(pet)}
                       </Badge>
                     )}
                   </div>

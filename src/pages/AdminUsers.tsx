@@ -1,3 +1,4 @@
+import { daycareLabel } from "@/lib/daycare";
 import { useEffect, useState, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -396,7 +397,7 @@ const AdminUsers = () => {
                                     )}
                                     {pet.frequenta_creche && (
                                       <Badge variant="secondary" className="text-xs py-0">
-                                        Creche
+                                        Creche: {daycareLabel(pet)}
                                       </Badge>
                                     )}
                                   </div>

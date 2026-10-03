@@ -134,10 +134,10 @@ const DashboardProfile = () => {
         title: "Foto atualizada",
         description: "Sua foto de perfil foi salva com sucesso.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao enviar foto",
-        description: error.message || "Tente novamente mais tarde.",
+        description: (error instanceof Error ? error.message : "") || "Tente novamente mais tarde.",
         variant: "destructive",
       });
       setPhotoPreview(null);
@@ -176,10 +176,10 @@ const DashboardProfile = () => {
         title: "Perfil atualizado",
         description: "Seus dados foram salvos com sucesso.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao atualizar",
-        description: error.message || "Tente novamente mais tarde.",
+        description: (error instanceof Error ? error.message : "") || "Tente novamente mais tarde.",
         variant: "destructive",
       });
     } finally {
@@ -224,10 +224,10 @@ const DashboardProfile = () => {
       });
       setPasswordData({ senhaAtual: "", novaSenha: "", confirmarSenha: "" });
       setShowPasswordForm(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao alterar senha",
-        description: error.message || "Verifique a senha atual e tente novamente.",
+        description: (error instanceof Error ? error.message : "") || "Verifique a senha atual e tente novamente.",
         variant: "destructive",
       });
     } finally {

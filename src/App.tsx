@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import PasswordRecovery from "./pages/PasswordRecovery";
 import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import DashboardPets from "./pages/DashboardPets";
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="/" element={<Home />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/recuperar-senha" element={<PasswordRecovery />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route
               path="/booking"

@@ -5,20 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, MessageSquare, Phone, Mail, MapPin } from "lucide-react";
+import { ArrowLeft, MessageSquare, Phone, Mail } from "lucide-react";
+import { contact } from "@/config/contact";
 
 const Contact = () => {
-  const { toast } = useToast();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Mensagem enviada!",
-      description: "Entraremos em contato em breve.",
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-cream">
       <Navigation />
@@ -45,11 +35,11 @@ const Contact = () => {
                 <CardHeader>
                   <CardTitle>Envie uma Mensagem</CardTitle>
                   <CardDescription>
-                    Preencha o formulário e responderemos em breve
+                    O envio pelo formulário ainda não está disponível. Use nosso WhatsApp ou e-mail para falar com a anfitriã.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <fieldset disabled className="space-y-6 opacity-60">
                     <div className="space-y-2">
                       <Label htmlFor="nome">Nome</Label>
                       <Input id="nome" placeholder="Seu nome" required />
@@ -77,9 +67,9 @@ const Contact = () => {
 
                     <Button type="submit" size="lg" className="w-full">
                       <MessageSquare className="w-5 h-5" />
-                      Enviar Mensagem
+                      Envio pelo formulário indisponível
                     </Button>
-                  </form>
+                  </fieldset>
                 </CardContent>
               </Card>
             </div>
@@ -93,8 +83,10 @@ const Contact = () => {
                   <div className="flex items-start gap-3">
                     <Phone className="w-5 h-5 text-primary mt-1" />
                     <div>
-                      <div className="font-medium">Telefone</div>
-                      <div className="text-sm text-muted-foreground">(00) 99999-9999</div>
+                      <div className="font-medium">WhatsApp</div>
+                      <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline">
+                        {contact.phone}
+                      </a>
                     </div>
                   </div>
 
@@ -102,20 +94,12 @@ const Contact = () => {
                     <Mail className="w-5 h-5 text-primary mt-1" />
                     <div>
                       <div className="font-medium">E-mail</div>
-                      <div className="text-sm text-muted-foreground">contato@hosteldamel.com</div>
+                      <a href={`mailto:${contact.email}`} className="text-sm text-primary underline break-all">
+                        {contact.email}
+                      </a>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-primary mt-1" />
-                    <div>
-                      <div className="font-medium">Endereço</div>
-                      <div className="text-sm text-muted-foreground">
-                        Rua dos Pets, 123<br />
-                        Bairro Feliz - Cidade
-                      </div>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
 

@@ -102,7 +102,7 @@ const AboutUs = () => {
                     <Heart className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <div className="font-bold text-foreground">+5 Anos</div>
+                    <div className="font-bold text-foreground">Mais de 10 anos</div>
                     <div className="text-sm text-muted-foreground">De experiência com pets</div>
                   </div>
                 </div>
@@ -119,7 +119,7 @@ const AboutUs = () => {
                   <div className="space-y-4 text-muted-foreground">
                     <p>
                       Olá! Sou a <strong className="text-foreground">Liliane</strong>, apaixonada por animais desde sempre.
-                      Minha jornada com os pets começou há mais de 5 anos, quando decidi transformar
+                      Minha jornada com os pets começou há mais de 10 anos, quando decidi transformar
                       esse amor em minha profissão.
                     </p>
                     <p>

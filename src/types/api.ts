@@ -52,6 +52,7 @@ export interface Pet {
   peso: number;
   aniversario?: string;
   frequenta_creche: boolean;
+  frequencia_creche?: 'duas_vezes_semana' | 'diariamente' | 'esporadicamente' | 'nao';
   adestrado: boolean;
   castrado: boolean;
   alimentacao?: string;
@@ -77,6 +78,7 @@ export interface RegisterPetData {
   peso: number;
   aniversario?: string;
   frequenta_creche: boolean;
+  frequencia_creche?: Pet['frequencia_creche'];
   adestrado: boolean;
   castrado: boolean;
   alimentacao?: string;

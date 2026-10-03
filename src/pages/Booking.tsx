@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ import {
   User,
 } from "lucide-react";
 
-const DAILY_RATE = 80;
+const DAILY_RATE = 90;
 
 const durationOptions = [
   { value: "1", label: "1 dia" },
@@ -75,28 +75,36 @@ const BookingPage = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
 
-  useEffect(() => {
-    const loadData = async () => {
+  const [petsError, setPetsError] = useState(false);
+  const [bookingsError, setBookingsError] = useState(false);
+
+  const loadData = useCallback(async () => {
+    setLoadingPets(true);
+    setLoadingBookings(true);
+    setPetsError(false);
+    setBookingsError(false);
+    await Promise.all([(async () => {
       try {
         const petsData = await api.getPets();
         setPets(petsData);
       } catch {
-        // handled by empty state
+        setPetsError(true);
       } finally {
         setLoadingPets(false);
       }
-
+    })(), (async () => {
       try {
         const bookingsData = await api.getMyBookings();
         setBookings(bookingsData);
       } catch {
-        // bookings table may not exist yet
+        setBookingsError(true);
       } finally {
         setLoadingBookings(false);
       }
-    };
-    loadData();
+    })()]);
   }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
 
   const togglePet = (petId: string) => {
     const target = pets.find((p) => p.id === petId);
@@ -121,7 +129,7 @@ const BookingPage = () => {
   const total = totalPerPet * Math.max(selectedPets.length, 1);
   const duracaoLabel = durationOptions.find((d) => d.value === duracao)?.label || "";
 
-  const canSubmit = date && selectedPets.length > 0 && duracao && acceptedTerms && !submitting && hasTelefone;
+  const canSubmit = date && selectedPets.length > 0 && duracao && acceptedTerms && !submitting && hasTelefone && !loadingPets && !petsError;
 
   const handleBooking = async () => {
     if (!canSubmit || !date) return;
@@ -147,6 +155,7 @@ const BookingPage = () => {
       setDuracao("3");
       setPeriodo("manha");
       setPagamento("pix");
+      setAcceptedTerms(false);
 
       toast({
         title: "Reserva enviada!",
@@ -286,6 +295,11 @@ const BookingPage = () => {
                     <div className="flex items-center gap-2 p-3 bg-muted rounded-lg text-sm text-muted-foreground">
                       <Loader2 className="w-4 h-4 animate-spin" />
                       Carregando pets...
+                    </div>
+                  ) : petsError ? (
+                    <div role="alert" className="space-y-2 text-sm text-destructive">
+                      <p>Não foi possível carregar seus pets.</p>
+                      <Button variant="outline" onClick={loadData}>Tentar novamente</Button>
                     </div>
                   ) : pets.length === 0 ? (
                     <div className="p-4 border-2 border-dashed rounded-lg text-center">
@@ -459,6 +473,20 @@ const BookingPage = () => {
                   </span>
                 </label>
 
+                {!canSubmit && !submitting && (
+                  <div aria-live="polite" className="rounded-lg border p-3 text-sm">
+                    <p className="font-medium mb-2">Para solicitar a reserva, falta:</p>
+                    <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                      {!hasTelefone && <li><Link to="/dashboard/perfil" className="text-primary underline">Cadastrar seu telefone no perfil</Link>.</li>}
+                      {!date && <li>Selecionar a data de entrada.</li>}
+                      {loadingPets ? <li>Aguardar o carregamento dos pets.</li> : petsError ? <li>Carregar os pets novamente.</li> : pets.length === 0 ? (
+                        <li><Link to="/dashboard/pets" className="text-primary underline">Cadastrar um pet</Link>.</li>
+                      ) : selectedPets.length === 0 && <li>Selecionar pelo menos um pet com foto cadastrada.</li>}
+                      {!acceptedTerms && <li>Ler e aceitar os Termos de Uso.</li>}
+                    </ul>
+                  </div>
+                )}
+
                 <Button
                   onClick={handleBooking}
                   size="lg"
@@ -494,6 +522,11 @@ const BookingPage = () => {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
+          ) : bookingsError ? (
+            <Card><CardContent className="py-6 space-y-3" role="alert">
+              <p>Não foi possível carregar suas reservas.</p>
+              <Button variant="outline" onClick={loadData}>Tentar novamente</Button>
+            </CardContent></Card>
           ) : bookings.length === 0 ? (
             <Card className="border-dashed border-2">
               <CardContent className="py-12 text-center">
@@ -505,7 +538,7 @@ const BookingPage = () => {
             </Card>
           ) : (
             <div className="space-y-3">
-              {bookings
+              {[...bookings]
                 .sort((a, b) => b.created_at.localeCompare(a.created_at))
                 .map((booking) => {
                   const sc = statusConfig[booking.status];

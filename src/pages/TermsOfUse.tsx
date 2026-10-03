@@ -61,7 +61,7 @@ const sections = [
     icon: CreditCard,
     title: "5. Pagamento e Cancelamento",
     items: [
-      "O valor da diaria e de R$ 80,00 por pet por dia.",
+      "O valor da diaria e de R$ 90,00 por pet por dia.",
       "O pagamento deve ser realizado apos a confirmacao da reserva, nas formas aceitas (PIX ou Cartao de Credito).",
       "Cancelamentos com mais de 48h de antecedencia nao geram cobranca.",
       "Cancelamentos com menos de 48h de antecedencia podem gerar cobranca de 50% do valor total.",
@@ -175,7 +175,7 @@ const TermsOfUse = () => {
         </Card>
 
         <p className="text-xs text-muted-foreground text-center mt-6">
-          Ultima atualizacao: Abril de 2026. O Hostel da Mel se reserva o direito de alterar estes termos a qualquer momento.
+          Última atualização: Outubro de 2026. O Hostel da Mel se reserva o direito de alterar estes termos a qualquer momento.
         </p>
       </main>
 
