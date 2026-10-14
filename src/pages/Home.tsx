@@ -20,14 +20,14 @@ const Home = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="inline-block">
-                <span className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+                <span className="px-4 py-2 bg-secondary text-accent-foreground rounded-full text-sm font-medium">
                   Hostel Pet de Confianca
                 </span>
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Aqui o amor e o cuidado{" "}
-                <span className="bg-gradient-to-r from-honey-gold to-honey-dark bg-clip-text text-transparent">
+                <span className="text-accent-foreground">
                   estao sempre presentes
                 </span>
               </h1>
@@ -122,8 +122,8 @@ const Home = () => {
 
             <Card className="border-2 hover:border-primary transition-colors hover:shadow-lg">
               <CardContent className="pt-6">
-                <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mb-4">
-                  <Shield className="w-6 h-6 text-accent" />
+                <div className="w-12 h-12 bg-status-success rounded-xl flex items-center justify-center mb-4">
+                  <Shield className="w-6 h-6 text-status-success-foreground" />
                 </div>
                 <h3 className="font-bold text-lg mb-2">Seguranca Total</h3>
                 <p className="text-muted-foreground text-sm">
@@ -146,8 +146,8 @@ const Home = () => {
 
             <Card className="border-2 hover:border-primary transition-colors hover:shadow-lg">
               <CardContent className="pt-6">
-                <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mb-4">
-                  <Calendar className="w-6 h-6 text-accent" />
+                <div className="w-12 h-12 bg-status-success rounded-xl flex items-center justify-center mb-4">
+                  <Calendar className="w-6 h-6 text-status-success-foreground" />
                 </div>
                 <h3 className="font-bold text-lg mb-2">Reserva Facil</h3>
                 <p className="text-muted-foreground text-sm">
@@ -162,17 +162,17 @@ const Home = () => {
       {/* CTA Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <Card className="bg-gradient-to-r from-honey-gold to-honey-dark text-white border-0 overflow-hidden relative">
+          <Card className="bg-primary text-primary-foreground border-0 rounded-2xl overflow-hidden relative">
             <CardContent className="p-12 relative z-10">
               <div className="max-w-2xl mx-auto text-center">
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
                   Garanta a vaga do seu pet!
                 </h2>
-                <p className="text-white/90 mb-8 text-lg">
+                <p className="text-primary-foreground/80 mb-8 text-lg">
                   As vagas sao limitadas. Reserve agora e garanta
                   tranquilidade para voce e conforto para seu pet.
                 </p>
-                <Button asChild size="lg" variant="outline" className="bg-white text-primary hover:bg-white/90">
+                <Button asChild size="lg" variant="cacau">
                   <Link to="/booking">
                     <Calendar className="w-5 h-5" />
                     Consultar Disponibilidade
@@ -180,7 +180,6 @@ const Home = () => {
                 </Button>
               </div>
             </CardContent>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10 z-0" />
           </Card>
         </div>
       </section>

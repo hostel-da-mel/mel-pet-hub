@@ -14,6 +14,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['"Figtree"', "system-ui", "sans-serif"],
+        display: ['"Bricolage Grotesque"', '"Figtree"', "system-ui", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -68,8 +72,24 @@ export default {
         },
         cream: "hsl(var(--cream))",
         sage: "hsl(var(--sage-green))",
+        cacau: {
+          DEFAULT: "hsl(var(--cacau))",
+          soft: "hsl(var(--cacau-soft))",
+        },
+        status: {
+          pending: "hsl(var(--status-pending))",
+          "pending-foreground": "hsl(var(--status-pending-foreground))",
+          success: "hsl(var(--status-success))",
+          "success-foreground": "hsl(var(--status-success-foreground))",
+          danger: "hsl(var(--status-danger))",
+          "danger-foreground": "hsl(var(--status-danger-foreground))",
+          info: "hsl(var(--status-info))",
+          "info-foreground": "hsl(var(--status-info-foreground))",
+        },
       },
       borderRadius: {
+        "2xl": "calc(var(--radius) + 14px)",
+        xl: "calc(var(--radius) + 10px)",
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",

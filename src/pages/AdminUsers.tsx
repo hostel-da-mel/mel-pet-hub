@@ -141,7 +141,7 @@ const AdminUsers = () => {
     switch (status) {
       case "ativo":
         return (
-          <Badge className="bg-accent/10 text-accent border-0 text-xs">
+          <Badge className="bg-status-success text-status-success-foreground hover:bg-status-success border-0 text-xs">
             <CheckCircle className="w-3 h-3 mr-1" />
             Ativo
           </Badge>
@@ -180,7 +180,7 @@ const AdminUsers = () => {
   const emailVerifiedBadge = (verified: boolean) => {
     if (verified) {
       return (
-        <Badge className="bg-accent/10 text-accent border-0 text-xs">
+        <Badge className="bg-status-success text-status-success-foreground hover:bg-status-success border-0 text-xs">
           <MailCheck className="w-3 h-3 mr-1" />
           Verificado
         </Badge>
@@ -303,7 +303,7 @@ const AdminUsers = () => {
                                     onClick={() =>
                                       handleEnable(u.sub, u.nome || u.email)
                                     }
-                                    className="text-accent border-accent/30 hover:bg-accent/10"
+                                    className="text-status-success-foreground border-status-success-foreground/30 hover:bg-status-success"
                                   >
                                     <CheckCircle className="w-4 h-4" />
                                     <span className="hidden sm:inline">

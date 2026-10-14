@@ -290,11 +290,11 @@ const DashboardProfile = () => {
                   />
                 ) : null}
                 <div
-                  className={`w-28 h-28 bg-gradient-to-br from-honey-gold to-honey-dark rounded-full flex items-center justify-center shadow-md ${
+                  className={`w-28 h-28 bg-primary rounded-full flex items-center justify-center shadow-md ${
                     avatarSrc ? "hidden" : ""
                   }`}
                 >
-                  <span className="text-3xl font-bold text-white">{initials}</span>
+                  <span className="text-3xl font-bold text-primary-foreground">{initials}</span>
                 </div>
 
                 {uploadingPhoto && (
@@ -328,7 +328,7 @@ const DashboardProfile = () => {
 
               <Badge
                 variant="secondary"
-                className="bg-accent/10 text-accent border-0 text-xs"
+                className="bg-status-success text-status-success-foreground hover:bg-status-success border-0 text-xs"
               >
                 <Shield className="w-3 h-3 mr-1" />
                 {user?.role === "admin" ? "Administrador" : "Cliente"}

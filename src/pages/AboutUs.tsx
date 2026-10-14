@@ -72,12 +72,12 @@ const AboutUs = () => {
       <section className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <span className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+            <span className="px-4 py-2 bg-secondary text-accent-foreground rounded-full text-sm font-medium">
               Conheça Nossa Equipe
             </span>
             <h1 className="text-4xl md:text-5xl font-bold mt-6 mb-4">
               Anfitriã{" "}
-              <span className="bg-gradient-to-r from-honey-gold to-honey-dark bg-clip-text text-transparent">
+              <span className="text-accent-foreground">
                 Liliane
               </span>
             </h1>
@@ -144,15 +144,15 @@ const AboutUs = () => {
 
               <div className="grid grid-cols-3 gap-4">
                 <Card className="text-center p-4">
-                  <div className="text-2xl font-bold text-primary">500+</div>
+                  <div className="text-2xl font-bold text-accent-foreground">500+</div>
                   <div className="text-xs text-muted-foreground">Pets hospedados</div>
                 </Card>
                 <Card className="text-center p-4">
-                  <div className="text-2xl font-bold text-primary">5.0</div>
+                  <div className="text-2xl font-bold text-accent-foreground">5.0</div>
                   <div className="text-xs text-muted-foreground">Avaliação média</div>
                 </Card>
                 <Card className="text-center p-4">
-                  <div className="text-2xl font-bold text-primary">6</div>
+                  <div className="text-2xl font-bold text-accent-foreground">6</div>
                   <div className="text-xs text-muted-foreground">Certificações</div>
                 </Card>
               </div>
@@ -171,7 +171,7 @@ const AboutUs = () => {
               </span>
               <h2 className="text-3xl md:text-4xl font-bold mt-6 mb-4">
                 A História da{" "}
-                <span className="bg-gradient-to-r from-honey-gold to-honey-dark bg-clip-text text-transparent">
+                <span className="text-accent-foreground">
                   Mel
                 </span>
               </h2>
@@ -278,7 +278,7 @@ const AboutUs = () => {
                           <cert.icon className="w-6 h-6 text-primary" />
                         </div>
                         <h3 className="font-bold text-lg mb-2">{cert.title}</h3>
-                        <p className="text-sm text-primary font-medium mb-1">
+                        <p className="text-sm text-accent-foreground font-medium mb-1">
                           {cert.institution}
                         </p>
                         <p className="text-xs text-muted-foreground mb-3">
@@ -303,7 +303,7 @@ const AboutUs = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <Card className="bg-gradient-to-r from-honey-gold to-honey-dark text-white border-0 overflow-hidden relative">
+            <Card className="bg-primary text-primary-foreground border-0 rounded-2xl overflow-hidden relative">
               <CardContent className="p-12 relative z-10">
                 <div className="text-center">
                   <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -313,28 +313,27 @@ const AboutUs = () => {
                     <div>
                       <Heart className="w-10 h-10 mx-auto mb-3" />
                       <h3 className="font-bold text-lg mb-2">Amor</h3>
-                      <p className="text-white/90 text-sm">
+                      <p className="text-primary-foreground/80 text-sm">
                         Cada pet é tratado com o mesmo amor que dedicamos aos nossos próprios animais
                       </p>
                     </div>
                     <div>
                       <Shield className="w-10 h-10 mx-auto mb-3" />
                       <h3 className="font-bold text-lg mb-2">Segurança</h3>
-                      <p className="text-white/90 text-sm">
+                      <p className="text-primary-foreground/80 text-sm">
                         Ambiente seguro e protocolos rigorosos para o bem-estar do seu pet
                       </p>
                     </div>
                     <div>
                       <Star className="w-10 h-10 mx-auto mb-3" />
                       <h3 className="font-bold text-lg mb-2">Excelência</h3>
-                      <p className="text-white/90 text-sm">
+                      <p className="text-primary-foreground/80 text-sm">
                         Busca constante por conhecimento e melhoria nos serviços oferecidos
                       </p>
                     </div>
                   </div>
                 </div>
               </CardContent>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10 z-0" />
             </Card>
           </div>
         </div>

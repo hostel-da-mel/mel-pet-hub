@@ -177,17 +177,17 @@ const BookingPage = () => {
     pendente: {
       label: "Aguardando confirmacao",
       icon: Hourglass,
-      className: "bg-honey-gold/10 text-honey-dark border-0",
+      className: "bg-status-pending text-status-pending-foreground hover:bg-status-pending border-0",
     },
     confirmada: {
       label: "Confirmada",
       icon: CheckCircle,
-      className: "bg-accent/10 text-accent border-0",
+      className: "bg-status-success text-status-success-foreground hover:bg-status-success border-0",
     },
     rejeitada: {
       label: "Rejeitada",
       icon: XCircle,
-      className: "bg-destructive/10 text-destructive border-0",
+      className: "bg-status-danger text-status-danger-foreground hover:bg-status-danger border-0",
     },
   };
 

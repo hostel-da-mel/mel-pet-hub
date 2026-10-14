@@ -1,123 +1,146 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
 All colors MUST be HSL.
+
+Sistema visual "Favo": mel (#F5B21B) sobre cacau (#24170C).
+- Texto sobre mel é sempre escuro (cacau), nunca branco.
+- Bricolage Grotesque nos títulos, Figtree na interface.
+- Raios: 14px campos (--radius), 24px cartões (rounded-xl), pílula em botões (rounded-full).
 */
 
 @layer base {
   :root {
-    --background: 35 25% 97%;
-    --foreground: 30 25% 15%;
+    --background: 42 100% 98%;          /* #FFFCF5 fundo */
+    --foreground: 28 50% 9%;            /* #24170C cacau */
 
     --card: 0 0% 100%;
-    --card-foreground: 30 25% 15%;
+    --card-foreground: 28 50% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 30 25% 15%;
+    --popover-foreground: 28 50% 9%;
 
-    --primary: 35 65% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 42 92% 53%;              /* #F5B21B mel */
+    --primary-foreground: 28 50% 9%;
 
-    --secondary: 30 40% 90%;
-    --secondary-foreground: 30 25% 15%;
+    --secondary: 42 100% 92%;           /* #FFF3D6 favo claro */
+    --secondary-foreground: 28 50% 9%;
 
-    --muted: 35 20% 95%;
-    --muted-foreground: 30 15% 45%;
+    --muted: 39 45% 90%;                /* #F1E9DA areia */
+    --muted-foreground: 31 20% 35%;     /* #6B5A48 cacau suave */
 
-    --accent: 140 40% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 42 100% 92%;              /* hover de menus/ghost */
+    --accent-foreground: 35 100% 28%;   /* #8F5300 mel tostado */
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 10 71% 37%;          /* #A3321C */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 20% 88%;
-    --input: 35 20% 88%;
-    --ring: 35 65% 55%;
+    --border: 39 42% 86%;               /* #EADFCB */
+    --input: 38 35% 77%;                /* #D9CAB0 */
+    --ring: 42 92% 53%;
 
-    --radius: 0.75rem;
-    
+    --radius: 0.875rem;
+
     /* Custom design tokens */
-    --honey-gold: 35 65% 55%;
-    --honey-light: 35 80% 75%;
-    --honey-dark: 30 50% 35%;
-    --warm-brown: 25 40% 45%;
-    --cream: 35 40% 95%;
-    --sage-green: 140 40% 60%;
-    
+    --honey-gold: 42 92% 53%;           /* mel */
+    --honey-light: 42 95% 74%;          /* #FCD77F */
+    --honey-dark: 35 100% 28%;          /* mel tostado — links e texto de destaque */
+    --warm-brown: 31 20% 35%;
+    --cream: 42 100% 92%;
+    --sage-green: 150 56% 27%;
+    --cacau: 28 50% 9%;
+    --cacau-soft: 28 49% 15%;           /* #3B2614 */
+
+    /* Status (fundo / texto) */
+    --status-pending: 44 100% 90%;
+    --status-pending-foreground: 36 100% 24%;
+    --status-success: 145 48% 91%;
+    --status-success-foreground: 150 56% 27%;
+    --status-danger: 10 78% 93%;
+    --status-danger-foreground: 10 71% 37%;
+    --status-info: 218 71% 93%;
+    --status-info-foreground: 218 60% 34%;
+
     /* Gradients */
-    --gradient-warm: linear-gradient(135deg, hsl(35 65% 55%) 0%, hsl(30 50% 45%) 100%);
-    --gradient-soft: linear-gradient(180deg, hsl(35 25% 97%) 0%, hsl(35 40% 95%) 100%);
-    
+    --gradient-warm: linear-gradient(135deg, hsl(42 92% 53%) 0%, hsl(35 100% 28%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(42 100% 98%) 0%, hsl(42 100% 92%) 100%);
+
     /* Shadows */
-    --shadow-soft: 0 4px 20px -2px hsl(35 65% 55% / 0.15);
-    --shadow-hover: 0 8px 30px -4px hsl(35 65% 55% / 0.25);
-    
+    --shadow-soft: 0 4px 20px -4px hsl(28 50% 9% / 0.12);
+    --shadow-hover: 0 12px 32px -12px hsl(28 50% 9% / 0.25);
+
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 28 50% 9%;
+    --sidebar-foreground: 38 49% 83%;
+    --sidebar-primary: 42 92% 53%;
+    --sidebar-primary-foreground: 28 50% 9%;
+    --sidebar-accent: 28 49% 15%;
+    --sidebar-accent-foreground: 42 100% 98%;
+    --sidebar-border: 29 30% 27%;
+    --sidebar-ring: 42 92% 53%;
   }
 
   .dark {
-    --background: 30 15% 12%;
-    --foreground: 35 25% 95%;
+    --background: 28 40% 8%;
+    --foreground: 42 100% 96%;
 
-    --card: 30 20% 15%;
-    --card-foreground: 35 25% 95%;
+    --card: 28 45% 12%;
+    --card-foreground: 42 100% 96%;
 
-    --popover: 30 20% 15%;
-    --popover-foreground: 35 25% 95%;
+    --popover: 28 45% 12%;
+    --popover-foreground: 42 100% 96%;
 
-    --primary: 35 65% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 42 92% 53%;
+    --primary-foreground: 28 50% 9%;
 
-    --secondary: 30 25% 20%;
-    --secondary-foreground: 35 25% 95%;
+    --secondary: 29 30% 20%;
+    --secondary-foreground: 42 100% 96%;
 
-    --muted: 30 25% 20%;
-    --muted-foreground: 35 15% 65%;
+    --muted: 29 30% 18%;
+    --muted-foreground: 38 30% 72%;
 
-    --accent: 140 40% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 29 35% 20%;
+    --accent-foreground: 42 95% 74%;
 
-    --destructive: 0 62.8% 50%;
+    --destructive: 10 70% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 20% 25%;
-    --input: 30 20% 25%;
-    --ring: 35 65% 55%;
-    
-    --honey-gold: 35 65% 55%;
-    --honey-light: 35 60% 65%;
-    --honey-dark: 30 50% 25%;
-    --warm-brown: 25 30% 35%;
-    --cream: 30 25% 20%;
-    --sage-green: 140 40% 50%;
-    
-    --sidebar-background: 30 15% 12%;
-    --sidebar-foreground: 35 25% 95%;
-    --sidebar-primary: 35 65% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 30 25% 20%;
-    --sidebar-accent-foreground: 35 25% 95%;
-    --sidebar-border: 30 20% 25%;
-    --sidebar-ring: 35 65% 55%;
+    --border: 29 30% 24%;
+    --input: 29 25% 32%;
+    --ring: 42 92% 53%;
+
+    --honey-gold: 42 92% 53%;
+    --honey-light: 42 95% 74%;
+    --honey-dark: 38 85% 62%;
+    --warm-brown: 38 30% 72%;
+    --cream: 29 30% 20%;
+    --sage-green: 145 50% 60%;
+    --cacau: 28 50% 9%;
+    --cacau-soft: 28 49% 15%;
+
+    --status-pending: 36 60% 18%;
+    --status-pending-foreground: 42 95% 74%;
+    --status-success: 150 40% 16%;
+    --status-success-foreground: 145 50% 70%;
+    --status-danger: 10 45% 20%;
+    --status-danger-foreground: 10 85% 78%;
+    --status-info: 218 40% 20%;
+    --status-info-foreground: 218 80% 80%;
+
+    --sidebar-background: 28 50% 6%;
+    --sidebar-foreground: 38 49% 83%;
+    --sidebar-primary: 42 92% 53%;
+    --sidebar-primary-foreground: 28 50% 9%;
+    --sidebar-accent: 28 49% 15%;
+    --sidebar-accent-foreground: 42 100% 98%;
+    --sidebar-border: 29 30% 20%;
+    --sidebar-ring: 42 92% 53%;
   }
 }
 
@@ -127,6 +150,12 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
   }
 }

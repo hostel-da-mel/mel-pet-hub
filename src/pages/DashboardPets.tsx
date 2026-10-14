@@ -366,7 +366,7 @@ const DashboardPets = () => {
                 <div className="flex items-center gap-3">
                   <div className="hidden sm:flex items-center gap-2">
                     {pet.castrado && (
-                      <Badge variant="secondary" className="bg-accent/10 text-accent border-0">
+                      <Badge variant="secondary" className="bg-status-success text-status-success-foreground hover:bg-status-success border-0">
                         Castrado
                       </Badge>
                     )}
@@ -430,7 +430,7 @@ const DashboardPets = () => {
                   {/* Mobile badges */}
                   <div className="flex flex-wrap gap-2 mt-4 sm:hidden">
                     {pet.castrado && (
-                      <Badge variant="secondary" className="bg-accent/10 text-accent border-0">
+                      <Badge variant="secondary" className="bg-status-success text-status-success-foreground hover:bg-status-success border-0">
                         Castrado
                       </Badge>
                     )}

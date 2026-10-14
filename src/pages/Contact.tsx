@@ -84,7 +84,7 @@ const Contact = () => {
                     <Phone className="w-5 h-5 text-primary mt-1" />
                     <div>
                       <div className="font-medium">WhatsApp</div>
-                      <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline">
+                      <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-accent-foreground underline">
                         {contact.phone}
                       </a>
                     </div>
@@ -94,7 +94,7 @@ const Contact = () => {
                     <Mail className="w-5 h-5 text-primary mt-1" />
                     <div>
                       <div className="font-medium">E-mail</div>
-                      <a href={`mailto:${contact.email}`} className="text-sm text-primary underline break-all">
+                      <a href={`mailto:${contact.email}`} className="text-sm text-accent-foreground underline break-all">
                         {contact.email}
                       </a>
                     </div>
@@ -103,10 +103,10 @@ const Contact = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-honey-gold to-honey-dark text-white border-0">
+              <Card className="bg-cacau text-white border-0">
                 <CardContent className="pt-6">
                   <h3 className="font-bold text-lg mb-2">Horário de Funcionamento</h3>
-                  <div className="space-y-2 text-sm text-white/90">
+                  <div className="space-y-2 text-sm text-white/75">
                     <div className="flex justify-between">
                       <span>Segunda - Sexta</span>
                       <span>8h - 20h</span>

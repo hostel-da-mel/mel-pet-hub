@@ -111,17 +111,17 @@ const AdminBookings = () => {
     pendente: {
       label: "Pendente",
       icon: Hourglass,
-      className: "bg-honey-gold/10 text-honey-dark border-0",
+      className: "bg-status-pending text-status-pending-foreground hover:bg-status-pending border-0",
     },
     confirmada: {
       label: "Confirmada",
       icon: CheckCircle,
-      className: "bg-accent/10 text-accent border-0",
+      className: "bg-status-success text-status-success-foreground hover:bg-status-success border-0",
     },
     rejeitada: {
       label: "Rejeitada",
       icon: XCircle,
-      className: "bg-destructive/10 text-destructive border-0",
+      className: "bg-status-danger text-status-danger-foreground hover:bg-status-danger border-0",
     },
   };
 
@@ -174,12 +174,12 @@ const AdminBookings = () => {
         </Card>
         <Card
           className={`cursor-pointer transition-colors ${
-            filter === "confirmada" ? "border-accent border-2" : ""
+            filter === "confirmada" ? "border-status-success-foreground border-2" : ""
           }`}
           onClick={() => setFilter("confirmada")}
         >
           <CardContent className="p-3 sm:p-4 text-center">
-            <p className="text-2xl font-bold text-accent">
+            <p className="text-2xl font-bold text-status-success-foreground">
               {bookings.filter((b) => b.status === "confirmada").length}
             </p>
             <p className="text-xs text-muted-foreground">Confirmadas</p>
@@ -358,7 +358,7 @@ const AdminBookings = () => {
                             <Button
                               onClick={() => handleConfirm(booking.id)}
                               disabled={isLoading}
-                              className="bg-accent hover:bg-accent/90"
+                              className="bg-status-success-foreground text-white hover:bg-status-success-foreground/90"
                             >
                               {isLoading ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />

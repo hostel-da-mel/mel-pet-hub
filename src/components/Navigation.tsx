@@ -31,7 +31,7 @@ const Navigation = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
             <PawPrint className="w-7 h-7 sm:w-8 sm:h-8 text-primary group-hover:scale-110 transition-transform" />
-            <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-honey-gold to-honey-dark bg-clip-text text-transparent">
+            <span className="text-lg sm:text-xl font-bold text-accent-foreground">
               Hostel da Mel
             </span>
           </Link>

@@ -50,6 +50,21 @@ const staticLinks = [
   { path: "/sobre-nos", label: "Sobre Nos" },
 ];
 
+const SidebarLink = ({ item, active }: { item: MenuItem; active: boolean }) => (
+  <Link
+    to={item.path}
+    aria-current={active ? "page" : undefined}
+    className={`flex items-center gap-3 min-h-11 px-3 rounded-full text-sm transition-colors ${
+      active
+        ? "bg-primary text-primary-foreground font-semibold"
+        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+    }`}
+  >
+    <item.icon className="w-4 h-4" />
+    {item.label}
+  </Link>
+);
+
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -97,7 +112,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-cream">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Top navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4">
@@ -105,7 +120,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
               <PawPrint className="w-7 h-7 sm:w-8 sm:h-8 text-primary group-hover:scale-110 transition-transform" />
-              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-honey-gold to-honey-dark bg-clip-text text-transparent">
+              <span className="text-lg sm:text-xl font-bold text-accent-foreground">
                 Hostel da Mel
               </span>
             </Link>
@@ -116,8 +131,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    isActive(link.path) ? "text-primary" : "text-muted-foreground"
+                  className={`text-sm font-medium transition-colors hover:text-foreground ${
+                    isActive(link.path) ? "text-foreground font-semibold" : "text-muted-foreground"
                   }`}
                 >
                   {link.label}
@@ -138,8 +153,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <div className="hidden sm:block relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all ${
-                    userMenuOpen ? "bg-primary/10" : "hover:bg-muted"
+                  className={`flex items-center gap-2 px-2 py-1.5 rounded-full transition-all ${
+                    userMenuOpen ? "bg-secondary" : "hover:bg-muted"
                   }`}
                 >
                   {user?.picture && !avatarError ? (
@@ -150,7 +165,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       onError={() => setAvatarError(true)}
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-honey-gold to-honey-dark flex items-center justify-center text-white text-xs font-bold">
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
                       {initials}
                     </div>
                   )}
@@ -168,22 +183,22 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       <p className="font-semibold text-sm truncate">{user?.nome}</p>
                       <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                       {isAdmin && (
-                        <span className="inline-flex items-center gap-1 mt-1.5 text-xs font-medium text-honey-dark bg-honey-gold/10 px-2 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 mt-1.5 text-xs font-medium text-status-pending-foreground bg-status-pending px-2 py-0.5 rounded-full">
                           <Shield className="w-3 h-3" />
                           Administrador
                         </span>
                       )}
                     </div>
 
-                    {/* User pages */}
-                    <div className="py-1.5 border-b border-border">
+                    {/* User pages (md+ shows them in the sidebar) */}
+                    <div className="py-1.5 border-b border-border md:hidden">
                       {userMenuItems.map((item) => (
                         <Link
                           key={item.path}
                           to={item.path}
                           className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
                             isActive(item.path)
-                              ? "bg-primary/10 text-primary font-medium"
+                              ? "bg-primary text-primary-foreground font-semibold"
                               : "text-foreground hover:bg-muted"
                           }`}
                         >
@@ -195,7 +210,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
                     {/* Admin links */}
                     {isAdmin && (
-                      <div className="py-1.5 border-b border-border">
+                      <div className="py-1.5 border-b border-border md:hidden">
                         <p className="px-4 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                           Administracao
                         </p>
@@ -205,7 +220,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                             to={item.path}
                             className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
                               isActive(item.path)
-                                ? "bg-primary/10 text-primary font-medium"
+                                ? "bg-primary text-primary-foreground font-semibold"
                                 : "text-foreground hover:bg-muted"
                             }`}
                           >
@@ -259,7 +274,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                     isActive(link.path)
-                      ? "bg-primary/10 text-primary"
+                      ? "bg-primary text-primary-foreground font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
@@ -272,7 +287,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                   isActive("/contact")
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-primary text-primary-foreground font-semibold"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
@@ -292,7 +307,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                     isActive(item.path)
-                      ? "bg-primary/10 text-primary"
+                      ? "bg-primary text-primary-foreground font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
@@ -315,7 +330,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                         isActive(item.path)
-                          ? "bg-primary/10 text-primary"
+                          ? "bg-primary text-primary-foreground font-semibold"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted"
                       }`}
                     >
@@ -338,7 +353,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                         onError={() => setAvatarError(true)}
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-honey-gold to-honey-dark flex items-center justify-center text-white text-xs font-bold">
+                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
                         {initials}
                       </div>
                     )}
@@ -367,13 +382,46 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         )}
       </nav>
 
+      {/* Sidebar (md+) */}
+      <aside className="hidden md:flex fixed left-0 top-16 bottom-0 z-40 w-60 flex-col bg-cacau text-sidebar-foreground border-r border-sidebar-border overflow-y-auto">
+        <nav className="flex-1 px-3 py-6 space-y-1">
+          <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/60">
+            Minha Area
+          </p>
+          {userMenuItems.map((item) => (
+            <SidebarLink key={item.path} item={item} active={isActive(item.path)} />
+          ))}
+
+          {isAdmin && (
+            <>
+              <p className="px-3 pt-6 pb-2 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/60">
+                Administracao
+              </p>
+              {adminMenuItems.map((item) => (
+                <SidebarLink key={item.path} item={item} active={isActive(item.path)} />
+              ))}
+            </>
+          )}
+        </nav>
+
+        <div className="px-3 py-4 border-t border-sidebar-border">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full min-h-11 px-3 rounded-full text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Sair
+          </button>
+        </div>
+      </aside>
+
       {/* Content */}
-      <main className="flex-1 pt-20 sm:pt-24 pb-12 sm:pb-16">
+      <main className="flex-1 pt-20 sm:pt-24 pb-12 sm:pb-16 md:pl-60">
         <div className="container mx-auto px-4">{children}</div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-4 sm:py-6">
+      <footer className="border-t border-border py-4 sm:py-6 md:pl-60">
         <div className="container mx-auto px-4 text-center text-muted-foreground text-xs sm:text-sm">
           <p>&copy; 2026 Hostel da Mel. Todos os direitos reservados.</p>
           <p className="text-xs mt-1 opacity-50">
