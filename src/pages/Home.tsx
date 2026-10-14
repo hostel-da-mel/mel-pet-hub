@@ -69,17 +69,6 @@ const Home = () => {
                   className="w-full h-auto object-cover"
                 />
               </div>
-              <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-6 shadow-xl max-w-xs hidden lg:block">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <Heart className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-foreground">500+ Pets</div>
-                    <div className="text-sm text-muted-foreground">Hospedados com amor</div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -159,8 +148,7 @@ const Home = () => {
                   Garanta a vaga do seu pet!
                 </h2>
                 <p className="text-primary-foreground/80 mb-8 text-lg">
-                  As vagas sao limitadas. Reserve agora e garanta
-                  tranquilidade para voce e conforto para seu pet.
+                  Reserve agora e garanta tranquilidade para voce e conforto para seu pet.
                 </p>
                 <Button asChild size="lg" variant="cacau">
                   <Link to="/booking">
