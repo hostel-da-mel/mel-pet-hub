@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
-import { Heart, Shield, Calendar, Camera, Star } from "lucide-react";
+import { Heart, Shield, Calendar, Camera } from "lucide-react";
 import heroImage from "@/assets/hero-pets.jpg";
 
 const Home = () => {
@@ -58,16 +58,6 @@ const Home = () => {
                     </Link>
                   </Button>
                 )}
-              </div>
-
-              <div className="flex items-center gap-6 pt-4">
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-primary fill-primary" />
-                  <span className="text-sm font-medium">5.0 avaliacao</span>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Vagas limitadas
-                </div>
               </div>
             </div>
 
